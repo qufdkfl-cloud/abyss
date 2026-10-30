@@ -5657,5 +5657,47 @@ CLASH.dmg=function(o,v,crit,kill){if(!o||!document.querySelector)return;try{
 .lowfx .imp{display:none}
 `;document.head.appendChild(st)})();
 
+
+/* ---------- v68: pets — stronger, flying, visible actions ---------- */
+const PETSK={bat:'흡혈 물기',sala:'화염 숨결',fairy:'치유의 빛',turtle:'바위 방패',cat:'행운 할퀴기',tent:'촉수 후려치기',dragon:'용의 숨결'};
+function petPow2(p){const al=live();const avg=al.length?al.reduce((a,h)=>a+Math.max(h.atk||0,h.mag||0),0)/al.length:0;
+  return Math.round(Math.max(petPow(p),avg*(0.35+0.03*petLv(p)))*(p.k==='dragon'?1.5:1))}
+let PETFX=null;
+function petShow(kind){PETFX={t:Date.now(),k:kind}}
+petAct=function(assist,tgtUid){const p=S.pet;const B=S.battle;if(!p||!B)return;const en=B.en.filter(e=>e.hp>0);const al=live();if(!al.length)return;
+  const pw=petPow2(p)*(assist?0.55:1);const low=al.reduce((a,b)=>a.hp/a.maxhp<b.hp/b.maxhp?a:b);
+  const hit=(e,v)=>applyDmg(e,{d:Math.max(1,Math.round(v-e.def*0.25)),crit:false,em:1});
+  const tg=()=>{const t=tgtUid&&U(tgtUid);return t&&t.hp>0?t:pick(en)};let did=false;
+  try{if(p.k==='bat'&&en.length){const e=tg();const d=hit(e,pw);healHero(low,d*0.6);fxHit(e.uid,'claw','#c08aff',0);did=true}
+  else if(p.k==='sala'&&en.length){(assist?[tg()]:en).forEach(e=>{hit(e,pw*(assist?0.6:0.35));e.st.dot=Math.max(e.st.dot||0,2);e.st.dotv=Math.max(e.st.dotv||0,Math.round(pw*0.4));fxHit(e.uid,'blast','#ff7a2a',0)});did=true}
+  else if(p.k==='fairy'){if(assist&&low.hp/low.maxhp>0.8)return;healHero(low,pw*1.4);if(!assist)live().forEach(h=>addStress(h,-2,true));fxHit(low.uid,'heal','#9aff8a',0);did=true}
+  else if(p.k==='turtle'){(assist?[low]:al).forEach(h=>{const v=Math.round(pw*0.8);h.st.shield=(h.st.shield||0)+v;fxHit(h.uid,'shield','#a0c8a0',0)});did=true}
+  else if(p.k==='cat'&&en.length){const e=tg();const cr=Math.random()<0.35;hit(e,pw*(cr?2.2:0.9));if(cr)float(e,'행운의 일격!','crit');fxHit(e.uid,'claw','#ffd86a',0);did=true}
+  else if(p.k==='tent'&&en.length){const e=tg();hit(e,pw);if(e.hp>0&&Math.random()<(assist?0.15:0.35)){e.st.stun=1;float(e,'기절','sh')}fxHit(e.uid,'claw','#c060ff',0);did=true}
+  else if(p.k==='dragon'&&en.length){(assist?[tg()]:en).forEach(e=>{hit(e,pw*(assist?0.9:0.8));e.st.dot=Math.max(e.st.dot||0,3);e.st.dotv=Math.max(e.st.dotv||0,Math.round(pw*0.5));fxHit(e.uid,'meteor','#ff6a1a',0)});did=true}}catch(e){}
+  if(did){petShow(assist?'assist':'act');p.xp=(p.xp||0)+(assist?0:0.2);log(`🐾 ${PETS[p.k].n}${assist?'의 협공':''}: ${PETSK[p.k]}!`);try{SFX.bus()&&SFX.chime(MU.ctx.currentTime+0.02,0.35,p.k==='dragon'||p.k==='sala'?330:660)}catch(e){}}};
+(function(){
+ const _ds=doSkill;doSkill=function(uid,sid,tu){const sk=SK[sid];const r=_ds.apply(this,arguments);
+  try{if(S.pet&&S.battle&&sk&&sk.k==='dmg'&&Math.random()<0.3){petAct(true,tu);render()}}catch(e){}return r};
+ petBox=function(){const p=S.pet;if(!p&&!S.egg)return '';const f=PETFX&&Date.now()-PETFX.t<900?PETFX.k:'';
+  return `<div class="petbox${p?' pfly':''}${f?' p'+f:''}">${p?`${f?`<span class="pskill" style="--pc:${PETS[p.k].c}">${PETSK[p.k]}!</span>`:''}<div class="pbody" style="--pc:${PETS[p.k].c}">${petSVG(p.k,petSt(p))}</div><small>${PETS[p.k].n} Lv.${petLv(p)}</small>`:`<div class="egg">🥚</div><small>${S.egg.left}전투 후 부화</small>`}</div>`};
+})();
+(function(){const st=document.createElement&&document.createElement('style');if(!st||!document.head)return;st.textContent=`
+.stage2 .petbox{left:4px;bottom:auto;top:46px;width:70px}
+.stage2:has(.erow .u:nth-child(4)) .petbox{top:auto;bottom:calc(100% - 46px - 0px);transform:translateY(100%);}
+.stage2:has(.erow .u:nth-child(4)) .petbox{top:2px;bottom:auto;transform:scale(.8);transform-origin:0 0}
+.stage2.giant .petbox{top:auto;bottom:150px}
+.petbox.pfly .pbody{animation:pbob 2.6s ease-in-out infinite;filter:drop-shadow(0 0 6px var(--pc)) drop-shadow(0 3px 2px rgba(0,0,0,.7))}
+.petbox .petsvg{width:60px;height:60px}
+.petbox small{font-size:9px;color:#d8cbb8;text-shadow:0 1px 2px #000}
+.petbox.pact .pbody{animation:pdash .8s cubic-bezier(.3,.7,.3,1)}
+.petbox.passist .pbody{animation:pdash2 .7s cubic-bezier(.3,.7,.3,1)}
+.petbox .pskill{position:absolute;left:4px;top:-18px;white-space:nowrap;font-size:12px;font-weight:800;color:#fff;text-shadow:0 0 6px var(--pc),0 1px 2px #000;animation:pskill .9s ease-out forwards}
+@keyframes pbob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}
+@keyframes pdash{0%{transform:none}35%{transform:translate(70px,-60px) scale(1.35)}55%{transform:translate(64px,-54px) scale(1.25)}100%{transform:none}}
+@keyframes pdash2{0%{transform:none}40%{transform:translate(90px,-70px) scale(1.2) rotate(12deg)}100%{transform:none}}
+@keyframes pskill{0%{opacity:0;transform:translateY(6px) scale(.8)}20%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+`;document.head.appendChild(st)})();
+
 </script>
 </body></html>
