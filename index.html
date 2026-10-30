@@ -5311,7 +5311,7 @@ function vPage(){const p=S.page;const I=S.inn;const f=S.floor;
   ${S.books.some(n=>n>=4)?`<div class="label">누구를 변신시킬까?</div><div class="list">${BOOKS.map((b,bi)=>S.books[bi]<4?'':S.heroes.map(h=>h.boss?'':`<button class="btn" data-a="transform" data-v="${bi}|${h.uid}">${h.nm}(${hname(h)}) → <b style="color:var(--g5)">${BOSSCLS[b.k].n}</b></button>`).join('')).join('')}</div>`:'<p class="muted center sm">책은 보스, 괴물, 서가에서 아주 드물게 나온다.</p>'}`;
  if(p.n==='supply')return `${pageHead('보급품')}<div class="card"><div class="stats4 num">${Object.keys(PROVN).map(k=>`<span>${PROVN[k]}<b>${S.prov[k]}</b></span>`).join('')}</div></div>
   <div class="label">마법 두루마리 · 전투 중 화면 오른쪽 버튼으로 사용</div><div class="list">${SCROLL_KEYS.map(k=>`<div class="item" style="--gc:var(--brass)"><div class="qe big">${SCROLLS[k].e}</div><div><div class="in">${SCROLLS[k].n}</div><div class="is">${SCROLLS[k].d}</div></div><b class="num">${S.scrolls[k]||0}</b></div>`).join('')}</div>`;
- if(p.n==='settings')return `${pageHead('설정')}<div class="card"><div class="label">이펙트</div><div class="acts">${['최소','보통','화려'].map((t,i)=>`<button class="btn${FXQ===i?' on':''}" data-a="fxq" data-v="${i}">${t}</button>`).join('')}</div><div class="sm muted">어지럽거나 느리면 '최소'로. 화면 흔들림은 '화려'에서만 나와요.</div></div><div class="card"><div class="label">전투 속도</div><div class="acts">${[1,2,3].map(v=>`<button class="btn${SPD===v?' on':''}" data-a="setSpd" data-v="${v}">×${v}</button>`).join('')}</div></div><div class="card"><div class="label">타격 연출</div><div class="acts">${['끄기','×1·×2만','×3도 보기'].map((t,i)=>`<button class="btn${CLASH.mode===i?' on':''}" data-a="clashMode" data-v="${i}">${t}</button>`).join('')}</div><div class="sm muted">'×3도 보기'는 ×3에서도 짧은 연출이 나와요. 대신 조금 느려져요.</div></div><div class="card"><div class="label">기술 효과음</div><div class="acts">${['끄기','작게','보통','크게'].map((t,i)=>`<button class="btn${SFX.lv===i?' on':''}" data-a="sfxv" data-v="${i}">${t}</button>`).join('')}</div></div><div class="card"><div class="label">음악</div><div class="acts"><button class="btn${MU.on?' on':''}" data-a="music">${MU.on?'끄기':'켜기'}</button>${MU.on?`<button class="btn" data-a="vol">음량 ${['작게','보통','크게'][MU.vol]}</button><button class="btn" data-a="skipTrack">다음 곡</button>`:''}</div>
+ if(p.n==='settings')return `${pageHead('설정')}<div class="card"><div class="label">이펙트</div><div class="acts">${['최소','보통','화려'].map((t,i)=>`<button class="btn${FXQ===i?' on':''}" data-a="fxq" data-v="${i}">${t}</button>`).join('')}</div><div class="sm muted">어지럽거나 느리면 '최소'로. 화면 흔들림은 '화려'에서만 나와요.</div></div><div class="card"><div class="label">전투 속도</div><div class="acts">${[1,2,3].map(v=>`<button class="btn${SPD===v?' on':''}" data-a="setSpd" data-v="${v}">×${v}</button>`).join('')}</div></div><div class="card"><div class="label">타격 연출</div><div class="acts">${['끄기','켜기'].map((t,i)=>`<button class="btn${(CLASH.mode?1:0)===i?' on':''}" data-a="clashMode" data-v="${i}">${t}</button>`).join('')}</div><div class="sm muted">맞을 때 번쩍임·밀려남·베기 궤적·화면 흔들림</div></div><div class="card"><div class="label">기술 효과음</div><div class="acts">${['끄기','작게','보통','크게'].map((t,i)=>`<button class="btn${SFX.lv===i?' on':''}" data-a="sfxv" data-v="${i}">${t}</button>`).join('')}</div></div><div class="card"><div class="label">음악</div><div class="acts"><button class="btn${MU.on?' on':''}" data-a="music">${MU.on?'끄기':'켜기'}</button>${MU.on?`<button class="btn" data-a="vol">음량 ${['작게','보통','크게'][MU.vol]}</button><button class="btn" data-a="skipTrack">다음 곡</button>`:''}</div>
   ${MU.on&&MU.tr?`<p class="sm muted">지금 흐르는 곡: <b style="color:var(--ink)">${MU.tr.n}</b></p>`:''}<p class="sm muted">층마다 던전에 맞는 곡이 나오고, 보스전은 빠르게, 여관은 잔잔하게 바뀐다.</p></div>
   <div class="card"><div class="label">전투</div><button class="btn${S.auto?' on':''}" data-a="toggleAuto">자동 전투 ${S.auto?'켜짐':'꺼짐'}</button></div>`;
  if(p.n==='setup')return `${pageHead('파티 속성','1열(앞)부터 4열(뒤)')}<div class="setup">${CLS_ORDER.map((c,i)=>{const C=CLASSES[c];return `<div class="scard"><div class="lineup sm">${[0,3,6,9].map(t=>heroArt({cls:c,el:S.setup[c],tier:t,ali:0,eq:{}})).join('')}</div><h3>${C.n} <span class="muted sm">${i+1}열 · ${C.role}</span></h3>
@@ -5623,6 +5623,38 @@ const CLASH={el:null,tm:[],endAt:0,
 @keyframes cdmg{0%,42%{opacity:0;transform:scale(2.6)}48%{opacity:1;transform:scale(1)}82%{opacity:1;transform:translateY(-14px)}100%{opacity:0;transform:translateY(-26px)}}
 @keyframes cshake{0%,41%{transform:none}43%{transform:translate(-10px,6px)}45%{transform:translate(9px,-5px)}47%{transform:translate(-6px,3px)}49%{transform:translate(4px,0)}52%,100%{transform:none}}
 .lowfx .clash{display:none}
+`;document.head.appendChild(st)})();
+
+
+/* ---------- v67: in-place impact (replaces zoom clash) ---------- */
+CLASH.play=function(o){if(!this.mode||FXQ===0)return null;return o};
+CLASH.dmg=function(o,v,crit,kill){if(!o||!document.querySelector)return;try{
+  const rev=!!o.rev;o.ts.slice(0,4).forEach((uid,k)=>{const u=document.querySelector(`.u[data-uid="${uid}"]`);if(!u)return;const art=u.querySelector('.art');
+   if(art&&v>0){art.style.setProperty('--ky',rev?'9px':'-9px');art.style.setProperty('--kr',(rev?-1:1)*(4+Math.random()*4)+'deg');art.classList.remove('hitk');void art.offsetWidth;art.classList.add('hitk')}
+   const d=document.createElement('div');d.className='imp'+(crit?' crit':'')+(o.magic?' mag':'');d.style.setProperty('--cc',o.c||'#fff');d.style.animationDelay=(k*40)+'ms';
+   const n=FXQ>=2?10:6;d.innerHTML=(v>0?(o.magic?'<b class="iboom"></b>':`<b class="isl" style="--ra:${rev?32:-32}deg"></b>${crit?`<b class="isl s2" style="--ra:${rev?-30:30}deg"></b>`:''}`):'')+
+     Array.from({length:v>0?n:0},()=>{const a=Math.random()*6.28,r=18+Math.random()*34;return `<i style="--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r}px"></i>`}).join('');
+   u.appendChild(d);setTimeout(()=>{try{d.remove()}catch(e){}},700)});
+  if(v>0){const st=document.querySelector('.stage2');if(st){st.classList.remove('ishk','ishk2');void st.offsetWidth;st.classList.add(crit||kill?'ishk2':'ishk')}}}catch(e){}};
+(function(){const st=document.createElement&&document.createElement('style');if(!st||!document.head)return;st.textContent=`
+.clash{display:none!important}
+.stage2 .u{position:relative}
+.u .imp{position:absolute;left:0;right:0;top:0;height:70%;pointer-events:none;z-index:6}
+.imp .isl{position:absolute;left:-12%;top:46%;width:124%;height:5px;border-radius:50%;background:linear-gradient(90deg,transparent,#fff 40%,var(--cc) 70%,transparent);box-shadow:0 0 10px var(--cc),0 0 3px #fff;transform:rotate(var(--ra)) scaleX(0);opacity:0;animation:isl .36s ease-out forwards}
+.imp .isl.s2{animation-delay:.07s}
+.imp .iboom{position:absolute;left:50%;top:50%;width:70px;height:70px;margin:-35px;border-radius:50%;background:radial-gradient(#fff,var(--cc) 40%,transparent 70%);opacity:0;animation:iboom .45s ease-out forwards}
+.imp i{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#c0141e;box-shadow:0 0 3px #600;opacity:0;animation:ipart .55s ease-out forwards}
+.imp.mag i{background:var(--cc);box-shadow:0 0 5px var(--cc)}
+.imp.crit .isl{height:7px}
+.art.hitk{animation:hitk .42s ease-out!important}
+@keyframes isl{0%{opacity:0;transform:rotate(var(--ra)) scaleX(0)}25%{opacity:1;transform:rotate(var(--ra)) scaleX(1)}100%{opacity:0;transform:rotate(var(--ra)) scaleX(1.1) translateY(4px)}}
+@keyframes iboom{0%{opacity:0;transform:scale(.3)}30%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes ipart{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 18px))}}
+@keyframes hitk{0%{filter:brightness(2.8) saturate(0);transform:none}25%{transform:translateY(var(--ky)) rotate(var(--kr))}55%{filter:brightness(1) sepia(.7) hue-rotate(-40deg) saturate(3)}100%{filter:none;transform:none}}
+.stage2.ishk{animation:ishk .22s linear}.stage2.ishk2{animation:ishk2 .32s linear}
+@keyframes ishk{0%,100%{transform:none}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-2px)}75%{transform:translate(-2px,1px)}}
+@keyframes ishk2{0%,100%{transform:none}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,0)}}
+.lowfx .imp{display:none}
 `;document.head.appendChild(st)})();
 
 </script>
