@@ -907,7 +907,7 @@ function finish(p){const w=p.w,h=p.h,s=p.d.slice();
   const s2=p.d.slice();for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x;if(s2[i])continue;const n=[x>0&&s2[i-1],x<w-1&&s2[i+1],y>0&&s2[i-w],y<h-1&&s2[i+w]].filter(v=>v&&v[0]!=='!');
     if(n.length)p.d[i]=shade(n[0],0.28)}return p}
 function heroLook(h){const eq=h.eq||{};const st=stageOf(h);const ali=h.ali||0;
-  const al=h.fate==='fallen'||ali<=-15?'dark':h.fate==='saint'||ali>=15?'light':'neu';const el=ELC[h.el]||'#6a4fb0',elg=ELG[h.el]||'#c8a8ff';
+  const al=h.fate==='fallen'||ali<=-30?'dark':h.fate==='saint'||ali>=30?'light':'neu';const el=ELC[h.el]||'#6a4fb0',elg=ELG[h.el]||'#c8a8ff';
   const defA={knight:{light:'#c9ced8',dark:'#3e3a48',neu:'#7d848e'},warrior:{light:'#9a7a4a',dark:'#3a2a28',neu:'#7a5634'},mage:{light:'#e8e2d4',dark:'#24162a',neu:el},healer:{light:'#efe9da',dark:'#3a2e36',neu:'#e4ddcc'}}[h.cls][al];
   const robe={mage:{light:'#ece6d6',dark:'#2a1830',neu:el},healer:{light:'#f4eedf',dark:'#33262e',neu:'#e6e0d2'}}[h.cls];
   return {cls:h.cls,st,al,el,elg,deep:h.fate==='fallen'||ali<=-50,holy:h.fate==='saint'||ali>=50,
@@ -1075,7 +1075,7 @@ function bgImg(k){if(!CAN)return '';if(!BG_CACHE[k])BG_CACHE[k]=paintBG(k);retur
 const HAIRS=['#3a2418','#6b3b22','#b8802a','#e0d0b0','#2a2a3a','#8a2a1a','#5a3a5a','#c86a3a'];
 const hhash=s=>{let h=7;for(const c of String(s||''))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)};
 function heroLook(h){const eq=h.eq||{};const st=stageOf(h);const ali=h.ali||0;
-  const al=h.fate==='fallen'||ali<=-15?'dark':h.fate==='saint'||ali>=15?'light':'neu';const el=ELC[h.el]||'#6a4fb0',elg=ELG[h.el]||'#c8a8ff';
+  const al=h.fate==='fallen'||ali<=-30?'dark':h.fate==='saint'||ali>=30?'light':'neu';const el=ELC[h.el]||'#6a4fb0',elg=ELG[h.el]||'#c8a8ff';
   const defA={knight:{light:'#d4d8e2',dark:'#3e3a4a',neu:'#8a929e'},warrior:{light:'#a8844e',dark:'#3a2a2a',neu:'#7a5634'},mage:{light:'#ece6d6',dark:'#2a1830',neu:el},healer:{light:'#f4eedf',dark:'#33262e',neu:'#e4ddcc'}}[h.cls][al];
   const robe={mage:{light:'#ece6d6',dark:'#2a1830',neu:el},healer:{light:'#f6f0e2',dark:'#33262e',neu:'#e8e2d4'}}[h.cls];
   return {cls:h.cls,st,al,el,elg,t:h.tier||0,hair:HAIRS[hhash(h.nm||h.cls)%HAIRS.length],
@@ -1194,7 +1194,7 @@ function paintHero(L){const p=P(44,50);const OX=6,OY=6;const X=x=>x+OX,Y=y=>y+OY
 function heroSpriteImg(h,cls){if(h.boss)return enemyImg(BOSSCLS[h.boss].spr,h.el,cls);if(h.cls==='villain')return enemyImg(h.v.spr,h.el,cls);
   const L=heroLook(h);const key='h7|'+[L.cls,L.st,L.t,L.al,L.el,L.A,L.W,L.T,L.wg,L.hair,L.sig,L.wb].join('|');return sprite(key,()=>paintHero(L),cls)}
 function auraCls(h){if(!h||!h.cls)return {c:'',s:''};const eq=h.eq||{};const uq=Object.values(eq).some(i=>i&&i.g===5);const sc=setCount(h);const cls=[];let col='';
-  const st=stageOf(h),ali=h.ali||0,al=h.fate==='fallen'||ali<=-15?'dark':h.fate==='saint'||ali>=15?'light':'neu';const acol=al==='light'?'#ffe27a':al==='dark'?'#ff3b4a':(ELG[h.el]||'#c8a8ff');
+  const st=stageOf(h),ali=h.ali||0,al=h.fate==='fallen'||ali<=-30?'dark':h.fate==='saint'||ali>=30?'light':'neu';const acol=al==='light'?'#ffe27a':al==='dark'?'#ff3b4a':(ELG[h.el]||'#c8a8ff');
   if(uq)cls.push('gl-uq');if(sc.full){cls.push('gl-set');col=SETS[sc.full].c}else if(eq.r&&eq.r.g>=3){cls.push('gl-ring');col=itemCol(eq.r,WPC)}
   else if(st===3&&h.cls!=='villain'){cls.push('gl-st3');col=acol}else if(st===2&&h.cls!=='villain'){cls.push('gl-st2');col=acol}
   if(h.fate==='fallen')cls.push('gl-fallen');if(h.fate==='saint')cls.push('gl-saint');return {c:cls.join(' '),s:(col?'--glc:'+col+';':'')+'--tsc:'+(0.8+0.042*(h.tier||0)+0.015*(h.aw||0)).toFixed(3),uq:uq||st===3}}
@@ -1431,7 +1431,7 @@ function addStress(h,v,silent){if(!h||h.dead||!v)return;
   if(h.stress>=200){h.stress=150;log(`${h.nm}의 심장이 멎었다!`);narr('heart');if(h.hp>0){h.hp=0;enterDD(h)}else die(h);if(!S.battle)pend(`${h.nm}의 심장이 멎었다!`);return}
   if(prev<100&&h.stress>=100&&!h.aff&&!h.vir){
     if(Math.random()<0.25){h.vir=pick(VIR);h.stress=50;h.ali=clamp(h.ali+8,-100,100);narr('vir');float(h,h.vir.n+'!','crit');log(`${h.nm}: 시련 속에서 ${h.vir.n}`);if(!S.battle)pend(`<b style="color:#ffd77a">${h.nm}</b>이 시련을 이겨내고 <b>${h.vir.n}</b>을 얻었다!`)}
-    else{h.aff=pick(AFF);h.ali=clamp(h.ali-8,-100,100);narr('aff');float(h,h.aff.n+'!','big');log(`${h.nm}: ${h.aff.n}에 빠졌다`);live().forEach(o=>{if(o!==h)addStress(o,6,true)});if(!S.battle)pend(`<b style="color:#ff8a7a">${h.nm}</b>의 정신이 무너졌다: <b>${h.aff.n}</b>`)}}}
+    else{h.aff=pick(AFF);h.ali=clamp(h.ali-4,-100,100);narr('aff');float(h,h.aff.n+'!','big');log(`${h.nm}: ${h.aff.n}에 빠졌다`);live().forEach(o=>{if(o!==h)addStress(o,6,true)});if(!S.battle)pend(`<b style="color:#ff8a7a">${h.nm}</b>의 정신이 무너졌다: <b>${h.aff.n}</b>`)}}}
 function enterDD(h){h.dd=true;float(h,'죽음의 문턱','big');log(`${h.nm}이 죽음의 문턱에 섰다`);narr('dd');live().forEach(o=>{if(o!==h)addStress(o,6,true)})}
 function deathRoll(h){if(tr(h,'immortal')&&(h.st.imm||0)<3){h.st.imm=(h.st.imm||0)+1;float(h,'불멸 '+h.st.imm+'/3','sh');addStress(h,12,true);return false}const keep=0.67+(anyBt('undying')?0.15:0)+qv(h,'dbr')+(h.xs&&h.xs.dbr||0)+(h.vir?0.1:0)+(h.fx&&h.fx.includes('lichset')?0.4:0);if(Math.random()<keep){float(h,'버텨냈다','sh');narr('survive');return false}die(h);return true}
 function die(h){if(h.dead)return;if(mu('revive')&&(S.guardUsed||0)<mu('revive')&&S.heroes.includes(h)){S.guardUsed=(S.guardUsed||0)+1;h.hp=Math.round(h.maxhp*0.5);h.dd=false;float(h,'수호 영혼!','crit');log(`수호 영혼이 ${h.nm}을 지켰다!`);try{fxHit(h.uid,'pillar','#9ae8ff',0)}catch(e){}return}const mart=tr(h,'martyr');h.dead=true;h.hp=0;if(mart)setTimeout(()=>{live().forEach(o=>{o.hp=o.maxhp;o.dd=false;o.stress=0;float(o,'순교의 은총','heal')});log(`${h.nm}의 순교로 모두가 일어섰다`);render()},10);float(h,'사망','big');log(`${h.nm}(${hname(h)}) 사망`);narr('death');
@@ -2409,7 +2409,7 @@ const TRTITLE={vamp:'흡혈 백작',glass:'유리의',shadow:'그림자',exec:'�
 function trTitle(h){const T=(h.tr||[]).filter(k=>TRTITLE[k]);if(!T.length)return '';const k=T.slice().sort((a,b)=>TRAITS[b].r-TRAITS[a].r||T.indexOf(b)-T.indexOf(a))[0];return `<span class="trt r${TRAITS[k].r}">${TRTITLE[k]}</span> `}
 const _hname=hname;hname=function(h){const n=trTitle(h)+_hname(h);return h.aw?`<span class="awk">각성${h.aw}</span> `+n:n};
 const AWC=['','#ffe27a','#ffd04a','#ffb03a','#ff8a3a','#ff5a5a','#ff4a8a','#d04aff','#8a6aff','#4ab4ff','#ffffff'];
-function awLayers(h,key){const a=h.aw||0;if(!a)return ['',''];const al=h.fate==='fallen'||(h.ali||0)<=-15?'dark':h.fate==='saint'||(h.ali||0)>=15?'light':'neu';
+function awLayers(h,key){const a=h.aw||0;if(!a)return ['',''];const al=h.fate==='fallen'||(h.ali||0)<=-30?'dark':h.fate==='saint'||(h.ali||0)>=30?'light':'neu';
   const c=al==='dark'?(a>=6?'#ff2a4a':'#c0203a'):al==='light'?(a>=6?'#fff2b0':'#ffd04a'):(a>=6?ELG[h.el]:shade(ELC[h.el],1.4));const id='aw'+hhash(key).toString(36);
   let back=`<defs><filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${3+a*0.4}"/></filter><radialGradient id="${id}r"><stop offset="0" stop-color="${c}" stop-opacity=".75"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>`;
   back+=`<ellipse cx="60" cy="72" rx="${44+a*2}" ry="${60+a*2}" fill="url(#${id}r)" opacity="${0.35+a*0.04}"/>`;
@@ -3419,7 +3419,7 @@ function inkify(s){if(!s||typeof s!=='string')return s;return s.replace(/<(path|
 
 /* ---------- v48: hand-drawn dark-ink KNIGHT (base = swordsman; gear & evolution change the look) ---------- */
 function knightSVG(h){
-  const eq=h.eq||{};const st=stageOf(h);const ali=h.ali||0;const al=h.fate==='fallen'||ali<=-15?'dark':h.fate==='saint'||ali>=15?'light':'neu';
+  const eq=h.eq||{};const st=stageOf(h);const ali=h.ali||0;const al=h.fate==='fallen'||ali<=-30?'dark':h.fate==='saint'||ali>=30?'light':'neu';
   const wg=eq.w?eq.w.g:-1,ag=eq.a?eq.a.g:-1,rg=eq.r?eq.r.g:-1,wup=eq.w?eq.w.up||0:0;const set=Object.values(eq).some(i=>i&&i.set);
   const eg=(eq.w&&eq.w.wel&&ELG[eq.w.wel])||ELG[h.el]||'#c8a8ff';
   const race=h.race||'human';const skin=(RSKIN[race]||RSKIN.human)[(h.hs||0)%((RSKIN[race]||RSKIN.human).length)]||'#d7b096';
@@ -3540,12 +3540,12 @@ function knightSVG(h){
   if(wg>=6)A(`<g class="kspark" fill="#fff" stroke="none"><circle cx="186" cy="360" r="2"/><circle cx="214" cy="420" r="1.6"/><circle cx="190" cy="470" r="1.8"/><circle cx="212" cy="340" r="1.4"/></g>`);
   const filt=h.shiny&&SHINY[h.shiny]?` style="filter:${SHINY[h.shiny].f}"`:'';
   const vb=st>=3?"-24 22 448 530":"52 30 296 524";return `<svg class="pxi vx kn${st>=3?' kn3':''}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"${filt}>${defs}<ellipse cx="200" cy="552" rx="110" ry="12" fill="#000" opacity=".5"/><g stroke="#0a0708" stroke-linejoin="round" stroke-linecap="round">${s}</g></svg>`}
-(function(){const _hsi=heroSpriteImg;heroSpriteImg=function(h,cls){if(h&&h.cls==='knight'&&!h.boss&&!h.v){const key='kn|'+h.uid+'|'+stageOf(h)+'|'+JSON.stringify([h.eq&&h.eq.w&&[h.eq.w.g,h.eq.w.wel,h.eq.w.up],h.eq&&h.eq.a&&h.eq.a.g,h.eq&&h.eq.r&&h.eq.r.g,h.ali>=15?1:h.ali<=-15?-1:0,h.fate,h.race,h.hs,h.shiny,h.el,Object.values(h.eq||{}).some(i=>i&&i.set)]);
+(function(){const _hsi=heroSpriteImg;heroSpriteImg=function(h,cls){if(h&&h.cls==='knight'&&!h.boss&&!h.v){const key='kn|'+h.uid+'|'+stageOf(h)+'|'+JSON.stringify([h.eq&&h.eq.w&&[h.eq.w.g,h.eq.w.wel,h.eq.w.up],h.eq&&h.eq.a&&h.eq.a.g,h.eq&&h.eq.r&&h.eq.r.g,h.ali>=30?1:h.ali<=-30?-1:0,h.fate,h.race,h.hs,h.shiny,h.el,Object.values(h.eq||{}).some(i=>i&&i.set)]);
   if(!VCACHE[key])VCACHE[key]=knightSVG(h);return VCACHE[key]}return _hsi(h,cls)}})();
 
 /* ---------- v49: knight evolution paths — hero(gold+angel wings), dark(black+demon horns/wings), berserker(muscle, sword only), neutral(steel+floating swords) ---------- */
 function kPath(h){const T=h.tr||[];if(T.some(t=>t==='berserk'||t==='bloodpact'||t==='madness'||t==='giant'))return 'berserk';const ali=h.ali||0;
-  if(h.fate==='fallen'||ali<=-15)return 'dark';if(h.fate==='saint'||ali>=15)return 'hero';return 'neu'}
+  if(h.fate==='fallen'||ali<=-30)return 'dark';if(h.fate==='saint'||ali>=30)return 'hero';return 'neu'}
 function featherWing(P,fill,shade2,edge){let s='';const F=(x,y,r,L,w)=>`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${r.toFixed(1)})"><path d="M0 0 C${w} ${L*.2} ${w*.8} ${L*.8} 0 ${L} C${-w*.8} ${L*.8} ${-w} ${L*.2} 0 0Z" fill="url(#${P}fw)" stroke-width="2.2"/><path d="M0 4 L0 ${L*.9}" fill="none" stroke="${shade2}" stroke-width="1.2"/></g>`;
   const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
   for(let i=0;i<9;i++){const t=i/8;const o=lerp([64,44],[92,76],t);s+=F(o[0],o[1],32-t*18,190-t*40,17)}
@@ -5182,8 +5182,8 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 const eb=el=>`<span class="eb" style="background:${EL[el].c}">${EL[el].n}</span>`;
 const hpBar=u=>{const p=Math.max(0,u.hp/u.maxhp*100);return `<div class="hp${p>=40?' ok':''}"><i style="width:${p}%"></i></div>`};
 const sBar=h=>`<div class="sb${h.stress>=100?' hi':''}"><i style="width:${h.stress/2}%"></i></div>`;
-const aliText=h=>h.ali>=15?`정의 ${h.ali}`:h.ali<=-15?`타락 ${-h.ali}`:'중립';
-const aliPill=h=>h.cls==='villain'?'':`<span class="pill ${h.ali>=15?'lt':h.ali<=-15?'dk':'nt'}">${aliText(h)}</span>`;
+const aliText=h=>h.ali>=30?`정의 ${h.ali}`:h.ali<=-30?`타락 ${-h.ali}`:'중립';
+const aliPill=h=>h.cls==='villain'?'':`<span class="pill ${h.ali>=30?'lt':h.ali<=-30?'dk':'nt'}">${aliText(h)}</span>`;
 const rarPill=h=>h.rar!=null&&h.rar!==1?`<span class="pill" style="background:${RAR[h.rar].c};color:#0b0908">${RAR[h.rar].n}</span>`:'';
 const state=h=>(h.hp===0&&!h.dead?'<span class="pill dd">죽음의 문턱</span>':'')+(h.aff?`<span class="pill aff">${h.aff.n}</span>`:'')+(h.vir?`<span class="pill vir">${h.vir.n}</span>`:'');
 function stChips(u){const s=u.st,c=[];if(s.taunt>0)c.push('도발');if(s.shield>0)c.push('보호막 '+s.shield);if(s.rage>0)c.push('분노');if(s.dot>0)c.push('지속 '+s.dot);if(s.regen>0)c.push('재생');if(s.stun>0)c.push('기절');if(s.broken>0)c.push('붕괴');return c}
@@ -5780,6 +5780,15 @@ LIGHT[3].d='아군 피해 +10% · 치명타 +5% · 라운드마다 스트레스 
 @keyframes tflick{0%,100%{opacity:1}18%{opacity:.93}22%{opacity:1}55%{opacity:.96}61%{opacity:1}}
 .lowfx #torchfx.on{animation:none}
 `;document.head.appendChild(st)})();
+
+
+/* ---------- v72: neutral evolution reachable; harder ---------- */
+kPath=function(h){const T=h.tr||[];if(T.some(t=>t==='berserk'||t==='bloodpact'||t==='madness'||t==='giant'))return 'berserk';const ali=h.ali||0;
+  if(h.fate==='fallen'||ali<=-30)return 'dark';if(h.fate==='saint'||ali>=30)return 'hero';return 'neu'};
+(function(){
+ const _ev=A.evo;A.evo=function(i){const M=S.modal;const h=M&&U(M.uid);if(h)h.ali=Math.round((h.ali||0)*0.8);return _ev.apply(this,arguments)};
+ Object.keys(DIFF).forEach(k=>{DIFF[k][0]*=1.12;DIFF[k][1]*=1.06});
+})();
 
 </script>
 </body></html>
