@@ -3575,7 +3575,7 @@ function knightSVG(h){
   const wg=eq.w?eq.w.g:-1,ag=zerk?-1:(eq.a?eq.a.g:-1),rg=zerk?-1:(eq.r?eq.r.g:-1);const set=!zerk&&Object.values(eq).some(i=>i&&i.set);
   const eg=(eq.w&&eq.w.wel&&ELG[eq.w.wel])||ELG[h.el]||'#c8a8ff';
   const race=h.race||'human';const SK=RSKIN[race]||RSKIN.human;const skin=SK[(h.hs||0)%SK.length]||'#d7b096';
-  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#141010','#2a1a12','#3a2a1a','#141010'][(h.hs||0)%4];
+  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#141010','#2a1a12','#3a2a1a','#6a3a1a','#8a5a2a','#c8a060','#d8d8d0','#7a1a14'][Math.floor((h.hs||0)/5)%8];
   const P='k'+hhash(h.uid+'|'+st+'|'+path+'|'+wg+'|'+ag+'|'+rg+'|'+race).toString(36);
   const plate=!zerk&&(st>=2||ag>=3), full=!zerk&&st>=2, twoP=!zerk&&(st>=1||ag>=2);
   const gold=path==='hero'||ag>=4||set;const trim=path==='dark'?'#c01830':path==='hero'?'#fffbe8':gold?'#e2b450':'#8a8f98';
@@ -3647,6 +3647,7 @@ function knightSVG(h){
     A(`<g stroke="none" fill="#000" opacity=".3"><path d="M206 352 L228 340 L234 430 L242 478 L214 478 Z"/><path d="M226 170 Q240 166 250 168 L244 250 L238 320 Q230 324 222 324 Z"/></g>`);
     if(rg>=0){const gc=rg>=5?'#ff4d6a':rg>=4?'#f2a53a':rg>=3?'#b583ec':rg>=2?'#4fa0e6':'#74c46a';A(`<path d="M186 160 Q200 186 214 160" fill="none" stroke="#c9a24a" stroke-width="1.6"/><path d="M200 182 L206 190 L200 200 L194 190 Z" fill="${gc}" stroke-width="2"/>${rg>=4?`<circle cx="200" cy="190" r="9" fill="${gc}" opacity=".45" filter="url(#${P}gw)" stroke="none"/>`:''}`)}
   }
+  if(!zerk)A(knBackHair(hairC,(h.hs||0)%5));
   // ===== neck + head =====
   A(`<path d="M${zerk?184:188} 132 L${zerk?216:212} 132 L${zerk?220:214} 158 L${zerk?180:186} 158 Z" fill="${shade(skin,.78)}" stroke-width="3"/>`);
   if(!zerk)A(`<path d="M172 152 Q200 140 228 152 L230 168 Q200 160 170 168 Z" fill="${STL}" stroke-width="3.2"/>`);
@@ -3662,11 +3663,12 @@ function knightSVG(h){
   A(`<circle cx="192" cy="104.6" r="2.1" fill="${iris}" stroke-width="1"/><circle cx="208" cy="104.6" r="2.1" fill="${iris}" stroke-width="1"/>${eyeGlow?`<circle cx="192" cy="104.6" r="4.5" fill="${iris}" opacity=".5" stroke="none" filter="url(#${P}gw)"/><circle cx="208" cy="104.6" r="4.5" fill="${iris}" opacity=".5" stroke="none" filter="url(#${P}gw)"/>`:''}
    <path d="M184 108 Q190 111 196 108 M204 108 Q210 111 216 108" fill="none" stroke="#5a3a2e" stroke-width="1.2" opacity=".7"/>
    <path d="M200 106 L198 119 L203 120" fill="none" stroke-width="1.8"/>${zerk?`<path d="M191 126 Q200 132 209 126 L207 129 Q200 134 193 129 Z" fill="#f2ead0" stroke-width="1.6"/>`:`<path d="M193 127 L207 126" fill="none" stroke-width="2.2"/>`}
-   <path d="M210 92 L216 116" fill="none" stroke="#6a2a24" stroke-width="2"/><path d="M208.5 98 L214 97 M210 104 L215.5 103 M211.5 110 L216.5 109" fill="none" stroke="#6a2a24" stroke-width="1"/>`);
+   ${maleMark(Math.floor((h.hs||0)/40)%6,hairC,0)}`);
   if(race==='dwarf')A(`<path d="M180 116 Q182 150 200 168 Q218 150 220 116 Q212 134 200 136 Q188 134 180 116 Z" fill="${hairC}" stroke-width="3"/>`);
   if(race==='orc')A(`<path d="M190 128 L188 120 L193 126 M210 128 L212 120 L207 126" fill="#f2ead0" stroke-width="1.6"/>`);
   // hair (berserker: wild & long)
   if(zerk)A(`<path d="M170 116 Q156 90 166 66 Q178 44 200 46 Q226 44 236 68 Q246 92 232 118 L228 130 L226 100 L220 108 L216 86 L208 100 L202 80 L196 100 L188 84 L184 104 L178 92 L176 118 Z" fill="${hairC}" stroke-width="3.4"/><path d="M168 70 L150 56 L166 60 M232 68 L252 54 L238 72 M190 48 L184 30 L200 44 L210 28 L212 46" fill="${hairC}" stroke-width="2.8"/>`);
+  else if((h.hs||0)%5)A(knHair(hairC,(h.hs||0)%5));
   else A(`<path d="M172 108 Q164 86 170 72 Q176 56 196 54 Q218 50 230 66 Q238 78 230 104 L226 112 L224 92 L218 98 L214 84 L208 96 L204 80 L198 96 L192 80 L188 98 L182 86 L180 104 Z" fill="${hairC}" stroke-width="3.4"/><path d="M176 64 L170 54 L184 58 M222 60 L232 52 L230 66 M196 55 L198 46 L206 54" fill="${hairC}" stroke-width="2.6"/>`);
   if(race==='beast')A(`<path d="M176 66 L168 40 L188 58 Z M224 66 L232 40 L212 58 Z" fill="${hairC}" stroke-width="3"/>`);
   if(race==='demon'&&!(fin&&path==='dark'))A(`<path d="M180 66 Q166 50 170 30 Q178 48 190 58 Z M220 66 Q234 50 230 30 Q222 48 210 58 Z" fill="#2a1a1a" stroke-width="3"/>`);
@@ -3709,7 +3711,7 @@ function knightSVG(h){
 function berserkerSVG(h){
   const eq=h.eq||{};const st=stageOf(h);const fin=st>=3;const wg=eq.w?eq.w.g:-1;
   const race=h.race||'human';const SK=RSKIN[race]||RSKIN.human;const skin=SK[(h.hs||0)%SK.length]||'#d7b096';
-  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#141010','#2a1a12','#3a2a1a','#141010'][(h.hs||0)%4];
+  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#141010','#2a1a12','#3a2a1a','#6a3a1a','#8a5a2a','#c8a060','#d8d8d0','#7a1a14'][Math.floor((h.hs||0)/5)%8];
   const P='z'+hhash(h.uid+'|'+st+'|'+wg+'|'+race).toString(36);
   const sc=st>=3?1.14:st>=2?1.08:1.0;
   const bc=wg>=7?['#fff6d0','#e8b040']:wg>=6?['#ffd8f0','#a0407a']:wg>=5?['#5a0a14','#200206']:['#2b2c33','#0a0a0e'];
@@ -3755,6 +3757,7 @@ function berserkerSVG(h){
    <path d="M150 214 L164 222 L150 230 M250 214 L236 222 L250 230" fill="none" stroke="#a01a24" stroke-width="3.2" opacity=".85"/>
    <g fill="#7a0a14" stroke="none" opacity=".8"><path d="M208 200 Q222 196 226 212 Q220 226 214 240 Q212 224 206 214 Z"/><path d="M214 240 Q216 262 212 290 Q208 262 210 244 Z"/><circle cx="176" cy="264" r="4"/><circle cx="168" cy="272" r="2.2"/><circle cx="232" cy="276" r="3"/><path d="M160 196 Q150 206 154 222 Q160 210 166 204 Z"/></g>`);
   if(fin)A(`<g fill="none" stroke="#ff3b4a" stroke-width="1.8" opacity=".9"><path d="M146 190 L156 210 L150 236 M254 192 L246 214 L254 240 M172 280 L182 300 M228 280 L218 300 M200 160 L200 186"/></g>`);
+  A(zkTattoo(Math.floor((h.hs||0)/7)%6));
   // --- deltoids ---
   A(`<path d="M138 170 Q108 168 102 198 Q100 222 118 230 Q134 214 150 196 Q150 178 138 170 Z" fill="${mid}" stroke-width="4.2"/><path d="M262 170 Q292 168 298 198 Q300 222 282 230 Q266 214 250 196 Q250 178 262 170 Z" fill="${lo}" stroke-width="4.2"/>
    <path d="M110 192 Q120 182 134 182" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/>`);
@@ -3790,11 +3793,11 @@ function berserkerSVG(h){
    <path d="M200 106 L197 119 L204 120" fill="none" stroke-width="2"/>
    <path d="M188 126 L212 126 L210 134 L190 134 Z" fill="#f2ead0" stroke-width="2.2"/><path d="M192 126 L192 134 M196 126 L196 134 M200 126 L200 134 M204 126 L204 134 M208 126 L208 134" fill="none" stroke-width="1"/>
    <g fill="#2a1a12" stroke="none" opacity=".6">${[[186,122],[190,138],[196,140],[204,140],[210,138],[214,122],[182,116],[218,116]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1"/>`).join('')}</g>
-   <path d="M212 88 L220 120" fill="none" stroke="#6a2a24" stroke-width="2.4"/>`);
+   ${maleMark(Math.floor((h.hs||0)/40)%6,hairC,0)}`);
   if(race==='dwarf')A(`<path d="M178 116 Q176 160 200 182 Q224 160 222 116 Q212 140 200 142 Q188 140 178 116 Z" fill="${hairC}" stroke-width="3"/>`);
   if(race==='orc')A(`<path d="M189 130 L186 118 L193 126 M211 130 L214 118 L207 126" fill="#f2ead0" stroke-width="1.8"/>`);
   // wild mane
-  A(`<path d="M172 118 Q154 92 162 64 Q172 36 202 36 Q234 36 242 64 Q250 92 230 118 L232 150 L222 128 L220 96 L214 104 L210 80 L204 96 L198 76 L192 96 L186 80 L182 102 L178 96 L178 128 L168 150 Z" fill="${hairC}" stroke-width="3.6"/>
+  if((h.hs||0)%5)A(zkHair(hairC,(h.hs||0)%5));else A(`<path d="M172 118 Q154 92 162 64 Q172 36 202 36 Q234 36 242 64 Q250 92 230 118 L232 150 L222 128 L220 96 L214 104 L210 80 L204 96 L198 76 L192 96 L186 80 L182 102 L178 96 L178 128 L168 150 Z" fill="${hairC}" stroke-width="3.6"/>
    <path d="M164 70 L140 58 L160 52 L150 34 L174 42 L180 22 L196 36 L206 18 L214 36 L232 24 L232 44 L256 40 L244 60 L262 66 L240 72" fill="${hairC}" stroke-width="3"/>
    <path d="M176 50 Q196 40 214 48 M184 62 Q200 54 220 60" fill="none" stroke="${shade(hairC,2.4)}" stroke-width="1.6" opacity=".6"/>`);
   if(race==='beast')A(`<path d="M172 60 L158 30 L186 48 Z M228 60 L242 30 L214 48 Z" fill="${hairC}" stroke-width="3"/>`);
@@ -3845,7 +3848,7 @@ function mageSVG(h){
   const wg=eq.w?eq.w.g:-1,ag=eq.a?eq.a.g:-1,rg=eq.r?eq.r.g:-1;
   const eg=(eq.w&&eq.w.wel&&ELG[eq.w.wel])||ELG[h.el]||'#c8a8ff';const ec=(eq.w&&eq.w.wel&&ELC[eq.w.wel])||ELC[h.el]||'#6a4fb0';
   const race=h.race||'human';const SK=RSKIN[race]||RSKIN.human;const skin=SK[(h.hs||0)%SK.length]||'#f6dcc8';
-  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#e8c070','#c06a3a','#3a2a4a','#f2ead0','#2a1a14'][(h.hs||0)%5];
+  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#e8c070','#c06a3a','#3a2a4a','#f2ead0','#2a1a14','#d86a8a','#6a8ad8','#8a5ab0','#c83a2a','#e8e8f0'][Math.floor((h.hs||0)/5)%10];
   const P='m'+hhash(h.uid+'|'+st+'|'+path+'|'+wg+'|'+ag+'|'+rg+'|'+race).toString(36);
   // palette by path
   const C=path==='hero'&&st>=1?{hat:['#f4f2ff','#b8b0d8'],robe:['#fffdf6','#d8d0e4'],skirt:['#3a5aa8','#1a2a5a'],trim:'#e8b84a',cape:['#2a4a9a','#0e1a40'],band:'#e8b84a'}
@@ -3877,7 +3880,7 @@ function mageSVG(h){
   if(fin&&path==='dark')A(`<g transform="translate(92 230)"><g class="kfs"><path d="M-30 -20 L0 -26 L30 -20 L30 22 L0 16 L-30 22 Z" fill="#2a0a12" stroke-width="3"/><path d="M0 -26 L0 16" stroke-width="2.4"/><path d="M-24 -14 L-6 -18 M-24 -6 L-6 -10 M24 -14 L6 -18 M24 -6 L6 -10" stroke="#ff3b4a" stroke-width="1.4"/><circle cx="0" cy="-4" r="6" fill="#ff3b4a" opacity=".6" filter="url(#${P}g)" stroke="none"/></g></g>
      <g transform="translate(316 200)"><g class="kfs" style="animation-delay:.8s"><path d="M-12 -10 Q0 -22 12 -10 Q14 4 6 10 L6 16 L-6 16 L-6 10 Q-14 4 -12 -10 Z" fill="#d8ccb0" stroke-width="2.6"/><circle cx="-5" cy="-4" r="3.4" fill="#ff3b4a" stroke-width="1"/><circle cx="5" cy="-4" r="3.4" fill="#ff3b4a" stroke-width="1"/></g></g>`);
   // hair (back)
-  A(`<path d="M160 120 Q140 200 146 300 L158 290 L164 320 L176 296 L186 314 L190 200 L210 200 L214 314 L224 296 L236 320 L242 290 L254 300 Q260 200 240 120 Z" fill="url(#${P}hr)" stroke-width="3.6"/>`);
+  A(femBackHair(`url(#${P}hr)`,(h.hs||0)%5,0));
   // cape
   A(`<path d="M170 186 Q140 240 144 ${fancy?380:310} L168 ${fancy?366:300} L184 ${fancy?386:316} L200 ${fancy?370:302} L216 ${fancy?386:316} L232 ${fancy?366:300} L256 ${fancy?380:310} Q260 240 230 186 Z" fill="url(#${P}c)" stroke-width="3.8"/>`);
   if(!adult){
@@ -3990,7 +3993,7 @@ function healerSVG(h){
   const wg=eq.w?eq.w.g:-1,ag=eq.a?eq.a.g:-1,rg=eq.r?eq.r.g:-1;const dk=path==='dark',lt=path==='hero';
   const eg=(eq.w&&eq.w.wel&&ELG[eq.w.wel])||ELG[h.el]||'#ffe58a';
   const race=h.race||'human';const SK=RSKIN[race]||RSKIN.human;const skin=SK[(h.hs||0)%SK.length]||'#f6dcc8';
-  let hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#c8925a','#3a2418','#e8c070','#8a3a2a','#1a1210'][(h.hs||0)%5];if(st>=1&&(path==='dark'||path==='berserk')&&!RHAIR[race])hairC=['#1a0c10','#4a0a18','#2a1420'][(h.hs||0)%3];
+  let hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#e8c070','#c06a3a','#3a2a4a','#f2ead0','#2a1a14','#d86a8a','#6a8ad8','#8a5ab0','#c83a2a','#e8e8f0'][Math.floor((h.hs||0)/5)%10];if(st>=1&&(path==='dark'||path==='berserk')&&!RHAIR[race])hairC=['#1a0c10','#5a0a1c','#e8e8f0','#8a1a2a','#2a1440','#c8a060','#3a1a10','#b04a6a'][Math.floor((h.hs||0)/5)%8];
   const P='n'+hhash(h.uid+'|'+st+'|'+path+'|'+wg+'|'+ag+'|'+rg+'|'+race).toString(36);
   const C=lt?{habit:['#fffdf6','#d8d2e4'],veil:['#ffffff','#d8d4e8'],trim:'#e8b84a',bib:'#ffffff',line:'#e8b84a'}
     :dk?{habit:['#2a1a22','#060305'],veil:['#1a0a10','#050203'],trim:'#c01830',bib:'#1a0a10',line:'#c01830'}
@@ -4013,7 +4016,7 @@ function healerSVG(h){
   if(fin&&path==='neu')A(`<g transform="translate(92 220)"><g class="kfs"><path d="M-30 -18 L0 -24 L30 -18 L30 20 L0 14 L-30 20 Z" fill="#f4ecd8" stroke-width="3"/><path d="M0 -24 L0 14" stroke-width="2.4"/><path d="M-24 -10 L-6 -14 M-24 -2 L-6 -6 M-24 6 L-6 2 M24 -10 L6 -14 M24 -2 L6 -6" stroke="#8a7a5a" stroke-width="1.2"/><circle cx="0" cy="-4" r="16" fill="${eg}" opacity=".3" filter="url(#${P}g)" stroke="none"/></g></g>
      ${[[318,190],[332,300],[70,330]].map((c,i)=>`<g transform="translate(${c[0]} ${c[1]})"><g class="kfs" style="animation-delay:${.5+i*.6}s"><rect x="-5" y="-6" width="10" height="22" rx="2" fill="#f4ecd8" stroke-width="2"/><path d="M0 -6 Q-5 -14 0 -24 Q5 -14 0 -6 Z" fill="#ffd060" stroke-width="1.4"/><circle cx="0" cy="-14" r="10" fill="#ffb040" opacity=".45" filter="url(#${P}g)" stroke="none"/></g></g>`).join('')}`);
   // veil back (long) / dark: short veil + long hair
-  if(dk)A(`<path d="M166 110 Q140 200 146 320 L160 306 L168 330 L180 300 L188 316 L190 220 L210 220 L212 316 L220 300 L232 330 L240 306 L254 320 Q260 200 234 110 Z" fill="${hairC}" stroke-width="3.4"/><path d="M162 100 Q144 150 150 220 L170 210 L186 226 L200 206 L214 226 L230 210 L250 220 Q256 150 238 100 Z" fill="url(#${P}v)" stroke-width="3.6"/><path d="M150 220 L170 210 L186 226 L200 206 L214 226 L230 210 L250 220" fill="none" stroke="#c01830" stroke-width="3"/>
+  if(dk)A(`${femBackHair(hairC,(h.hs||0)%5,10)}<path d="M162 100 Q144 150 150 220 L170 210 L186 226 L200 206 L214 226 L230 210 L250 220 Q256 150 238 100 Z" fill="url(#${P}v)" stroke-width="3.6"/><path d="M150 220 L170 210 L186 226 L200 206 L214 226 L230 210 L250 220" fill="none" stroke="#c01830" stroke-width="3"/>
      <g fill="none" stroke="#1a0a10" stroke-width="1.4">${Array.from({length:10},(_,i)=>`<path d="M${150+i*10} ${222+(i%2?4:0)} q5 7 10 0"/>`).join('')}</g>`);
   else A(`<path d="M162 100 Q138 170 140 330 L156 350 L176 336 L200 356 L224 336 L244 350 L260 330 Q262 170 238 100 Z" fill="url(#${P}v)" stroke-width="3.8"/>`);
   // ===== lower body =====
@@ -4128,7 +4131,7 @@ function warriorSVG(h){
   const wg=eq.w?eq.w.g:-1,ag=eq.a?eq.a.g:-1,rg=eq.r?eq.r.g:-1;
   const eg=(eq.w&&eq.w.wel&&ELG[eq.w.wel])||ELG[h.el]||'#ffb070';
   const SK=RSKIN[race]||RSKIN.human;let skin=SK[(h.hs||0)%SK.length]||'#d8a880';if(path==='dark')skin='#9a9aa8';if(path==='skel')skin='#e8e0cc';
-  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#3a2414','#1a1210','#6a3a1a','#8a5a2a'][(h.hs||0)%4];
+  const hairC=(RHAIR[race]&&RHAIR[race][(h.hs||0)%RHAIR[race].length])||['#141010','#2a1a12','#3a2a1a','#6a3a1a','#8a5a2a','#c8a060','#d8d8d0','#7a1a14'][Math.floor((h.hs||0)/5)%8];
   const P='w'+hhash(h.uid+'|'+st+'|'+path+'|'+wg+'|'+ag+'|'+race).toString(36);
   const band=path==='light'?'#1e3a6a':path==='dark'?'#140a18':path==='skel'?'#24221e':['#2a3a26','#3a1e1a','#2a2a36','#3a3020'][(h.hs||0)%4];const fur=path==='light'?'#e8e8f0':path==='dark'?'#1e1a20':st>=3?'#5a3a22':'#6a6670';const pelt=st>=2&&path!=='skel';const lining=path==='light'?'#d8dee8':path==='dark'?'#6a1a8a':path==='skel'?'#3a6a4a':'#7a2a1a';const bandC=0;const scarf=path==='light'?'#6ad8ff':path==='dark'?'#6a1a8a':path==='skel'?'#3a6a4a':fin?'#a01a14':'#7a2a1a';
   const tunic=path==='light'?['#3a5a7a','#1a2a3a']:path==='dark'?['#2a1e2e','#0a060c']:path==='skel'?['#4a3a2a','#1a120a']:['#6a5038','#2e2216'];
@@ -4213,7 +4216,7 @@ function warriorSVG(h){
      ${path==='dark'?`<circle cx="188" cy="117" r="5" fill="#ff3b30" opacity=".5" filter="url(#${P}g)" stroke="none"/><circle cx="212" cy="117" r="5" fill="#ff3b30" opacity=".5" filter="url(#${P}g)" stroke="none"/>`:`<circle cx="189" cy="117" r="2.1" fill="${path==='light'?'#6ad8ff':'#5a4030'}" stroke-width="1"/><circle cx="211" cy="117" r="2.1" fill="${path==='light'?'#6ad8ff':'#5a4030'}" stroke-width="1"/>`}
      <path d="M200 118 L197 130 L203 131" fill="none" stroke-width="1.8"/><path d="M191 141 Q200 137 209 141" fill="none" stroke-width="2.4"/><path d="M196 144 L204 144" fill="none" stroke-width="1" opacity=".5"/>
      <g fill="${hairC}" stroke="none" opacity=".55">${[[184,136],[188,144],[194,148],[200,149],[206,148],[212,144],[216,136],[182,128],[218,128],[196,142],[204,142]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.2"/>`).join('')}</g>
-     <path d="M180 98 L188 124" fill="none" stroke="#7a3a30" stroke-width="2.2"/>`);
+     ${maleMark(Math.floor((h.hs||0)/40)%6,hairC,12)}`);
     if(race==='dwarf')A(`<path d="M176 124 Q176 172 200 190 Q224 172 224 124 Q214 148 200 150 Q186 148 176 124 Z" fill="${hairC}" stroke-width="3"/><path d="M190 150 L192 176 M200 152 L200 182 M210 150 L208 176" fill="none" stroke="#000" stroke-width="1.2" opacity=".5"/>`);
     if(race==='orc')A(`<path d="M188 142 L185 130 L192 138 M212 142 L215 130 L208 138" fill="#f2ead0" stroke-width="1.8"/>`);
     if(race==='elf')A(`<path d="M176 108 L156 94 L172 120 Z M224 108 L244 94 L228 120 Z" fill="${shade(skin,.92)}" stroke-width="2.6"/>`)}
@@ -5793,5 +5796,41 @@ kPath=function(h){const T=h.tr||[];if(T.some(t=>t==='berserk'||t==='bloodpact'||
  Object.keys(DIFF).forEach(k=>{DIFF[k][0]*=1.12;DIFF[k][1]*=1.06});
 })();
 
+
+/* ---------- v73: hair & tattoo variety ---------- */
+function knBackHair(c,v){if(v===1)return `<path d="M168 92 Q156 140 160 196 L176 186 L184 204 L196 188 L204 188 L216 204 L224 186 L240 196 Q244 140 232 92 Z" fill="${c}" stroke-width="3.2"/>`;
+  if(v===2)return `<path d="M222 76 Q252 80 256 112 Q260 150 246 186 Q240 160 238 132 Q236 104 220 92 Z" fill="${c}" stroke-width="3"/><path d="M224 86 L232 82 L236 92 Z" fill="#6a2a1a" stroke-width="1.6"/>`;
+  return ''}
+function knHair(c,v){const sh=shade(c,1.9);
+  if(v===1)return `<path d="M172 106 Q160 80 174 62 Q190 48 200 50 Q214 48 226 62 Q240 80 228 106 L224 84 Q214 72 200 70 L200 60 L200 70 Q186 72 176 84 Z" fill="${c}" stroke-width="3.4"/><path d="M200 52 L200 68 M186 58 Q180 66 178 80 M214 58 Q220 66 222 80" fill="none" stroke="${sh}" stroke-width="1.4" opacity=".6"/>`;
+  if(v===2)return `<path d="M174 100 Q166 74 182 60 Q200 50 218 60 Q234 74 226 100 L222 80 Q210 70 200 72 Q188 70 178 80 Z" fill="${c}" stroke-width="3.4"/><path d="M180 66 Q200 58 220 66 M184 74 Q200 66 216 74" fill="none" stroke="${sh}" stroke-width="1.4" opacity=".6"/>`;
+  if(v===3)return `<path d="M177 92 Q176 68 200 64 Q224 68 223 92 Q222 80 212 74 Q200 70 188 74 Q178 80 177 92 Z" fill="${c}" stroke-width="3"/><g fill="${sh}" stroke="none" opacity=".35">${[[186,76],[194,72],[202,71],[210,73],[216,78],[190,80],[206,77]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1"/>`).join('')}</g>`;
+  return `<path d="M176 98 Q168 72 186 62 Q200 56 214 62 Q232 72 224 98 L220 82 Q210 72 200 74 Q190 72 180 82 Z" fill="${c}" stroke-width="3.4"/><ellipse cx="200" cy="50" rx="12" ry="10" fill="${c}" stroke-width="3"/><path d="M190 56 L210 56" stroke="#8a2a1a" stroke-width="3"/><path d="M200 40 L200 30" stroke="#c8a060" stroke-width="2.4"/>`}
+function zkHair(c,v){const sh=shade(c,2.2);
+  if(v===1)return `<path d="M188 94 L184 64 L176 44 L188 50 L186 28 L198 40 L200 14 L208 38 L216 26 L216 50 L226 44 L218 66 L212 94 Q200 80 188 94 Z" fill="${c}" stroke-width="3.2"/><path d="M178 92 Q176 74 186 66 M222 92 Q224 74 214 66" fill="none" stroke="#000" stroke-width="1" opacity=".4"/>`;
+  if(v===2)return `<path d="M176 100 Q168 66 200 56 Q232 66 224 100 L218 78 Q200 68 182 78 Z" fill="${c}" stroke-width="3.2"/><g fill="${c}" stroke-width="2.4">${[[162,-1],[172,-1],[178,-1],[222,1],[228,1],[238,1]].map(([x,d],i)=>`<path d="M${x} 96 Q${x+d*8} 150 ${x+d*16} ${206+(i%3)*12} L${x+d*16+8} ${204+(i%3)*12} Q${x+d*8+8} 150 ${x+8} 98Z"/>`).join('')}</g><g stroke="#c8a060" stroke-width="2.4"><path d="M160 170 l10 0 M232 170 l10 0"/></g>`;
+  if(v===3)return `<path d="M178 90 Q176 62 200 60 Q224 62 222 90 Q218 70 200 68 Q182 70 178 90 Z" fill="${shade(c,.9)}" opacity=".45" stroke="none"/><path d="M200 62 L200 92 M190 66 L192 88 M210 66 L208 88" fill="none" stroke="#1a1414" stroke-width="2.2" opacity=".7"/>`;
+  return `<path d="M174 108 Q164 70 200 58 Q236 70 226 108 L220 82 Q200 72 180 82 Z" fill="${c}" stroke-width="3.2"/><path d="M200 60 Q206 40 230 34 Q256 34 266 60 Q270 90 258 130 Q252 104 248 84 Q240 62 216 66 Z" fill="${c}" stroke-width="3.2"/><path d="M262 70 L270 74 M260 88 L268 92 M256 106 L264 110" stroke="#c8a060" stroke-width="2.4"/><path d="M184 66 Q200 60 216 66" fill="none" stroke="${sh}" stroke-width="1.4" opacity=".6"/>`}
+function zkTattoo(v){const C='#1a2a4a',W='2.6';
+  if(v===1)return `<g fill="none" stroke="${C}" stroke-width="${W}" opacity=".75"><path d="M150 200 Q160 190 176 196 Q166 206 170 220 M156 214 Q166 210 172 218 M250 200 Q240 190 224 196 Q234 206 230 220 M244 214 Q234 210 228 218"/><path d="M112 200 L122 214 L112 228 L124 240 M288 200 L278 214 L288 228 L276 240"/></g>`;
+  if(v===2)return `<g fill="none" stroke="${C}" stroke-width="${W}" opacity=".8"><circle cx="200" cy="216" r="16"/><path d="M200 196 L200 236 M180 216 L220 216 M188 204 L212 228 M212 204 L188 228"/><path d="M104 230 Q114 246 104 262 Q114 276 106 290 M296 230 Q286 246 296 262"/></g>`;
+  if(v===3)return `<g fill="${C}" stroke="none" opacity=".7"><path d="M106 196 L132 204 L110 212 L130 220 L108 228 L126 236 L104 242 Z"/><path d="M294 196 L268 204 L290 212 L270 220 L292 228 L274 236 L296 242 Z"/></g>`;
+  if(v===4)return `<g fill="none" stroke="#6a0a14" stroke-width="2.4" opacity=".85"><path d="M160 190 L172 210 L160 228 L176 244 M240 190 L228 210 L240 228 L224 244"/><path d="M196 170 L200 182 L204 170 M190 176 L200 196 L210 176"/></g>`;
+  if(v===5)return `<g fill="none" stroke="${C}" stroke-width="2" opacity=".75">${[0,1,2,3].map(i=>`<path d="M${104+i*2} ${206+i*12} q12 -6 24 0"/><path d="M${296-i*2} ${206+i*12} q-12 -6 -24 0"/>`).join('')}<path d="M182 168 Q200 180 218 168"/></g>`;
+  return ''}
+function maleMark(v,hc,dy){const y=dy||0;
+  if(v===0)return `<path d="M210 ${92+y} L216 ${116+y}" fill="none" stroke="#6a2a24" stroke-width="2"/><path d="M208.5 ${98+y} L214 ${97+y} M210 ${104+y} L215.5 ${103+y} M211.5 ${110+y} L216.5 ${109+y}" fill="none" stroke="#6a2a24" stroke-width="1"/>`;
+  if(v===1)return `<g fill="none" stroke="#1a3a6a" stroke-width="1.8" opacity=".85"><path d="M180 ${112+y} L186 ${118+y} L180 ${124+y} M220 ${112+y} L214 ${118+y} L220 ${124+y}"/><path d="M196 ${84+y} L200 ${90+y} L204 ${84+y}"/></g>`;
+  if(v===2)return `<path d="M184 ${96+y} L196 ${110+y} M196 ${96+y} L184 ${110+y}" fill="none" stroke="#6a2a24" stroke-width="1.8"/>`;
+  if(v===3)return `<g fill="${hc}" stroke="none" opacity=".75">${Array.from({length:14},(_,i)=>{const a=Math.PI*(0.15+0.7*i/13);return `<circle cx="${(200-Math.cos(a)*20).toFixed(1)}" cy="${(118+y+Math.sin(a)*18).toFixed(1)}" r="1.6"/>`}).join('')}</g><path d="M190 ${126+y} Q200 ${122+y} 210 ${126+y}" fill="${hc}" stroke="none" opacity=".8"/>`;
+  if(v===4)return `<path d="M190 ${80+y} L200 ${74+y} L210 ${80+y} L200 ${92+y} Z" fill="none" stroke="#3a6aaa" stroke-width="1.6" opacity=".9"/><circle cx="200" cy="${82+y}" r="1.6" fill="#6ad8ff" stroke="none"/>`;
+  return `<path d="M180 ${104+y} L222 ${104+y}" fill="none" stroke="#000" stroke-width="5" opacity=".5"/>`}
+function femBackHair(f,v,dy){const y=dy||0;
+  if(v===1)return `<path d="M164 ${118+y} Q136 150 132 220 Q128 280 144 330 Q150 300 150 260 Q152 200 172 ${150+y} Z M236 ${118+y} Q264 150 268 220 Q272 280 256 330 Q250 300 250 260 Q248 200 228 ${150+y} Z" fill="${f}" stroke-width="3.4"/><circle cx="160" cy="${132+y}" r="6" fill="#c83a5a" stroke-width="2"/><circle cx="240" cy="${132+y}" r="6" fill="#c83a5a" stroke-width="2"/>`;
+  if(v===2)return `<path d="M160 ${120+y} Q146 170 152 ${222+y} L170 ${212+y} L186 ${224+y} L200 ${214+y} L214 ${224+y} L230 ${212+y} L248 ${222+y} Q254 170 240 ${120+y} Z" fill="${f}" stroke-width="3.4"/>`;
+  if(v===3)return `<path d="M164 ${120+y} Q148 190 156 ${240+y} L244 ${240+y} Q252 190 236 ${120+y} Z" fill="${f}" stroke-width="3.4"/><g fill="${f}" stroke-width="2.6">${[0,1,2,3,4,5].map(i=>`<ellipse cx="${200+(i%2?6:-6)}" cy="${244+y+i*18}" rx="11" ry="10"/>`).join('')}</g><path d="M200 ${352+y} L196 ${370+y} M200 ${352+y} L204 ${372+y}" stroke="#c83a5a" stroke-width="3"/>`;
+  if(v===4)return `<path d="M160 ${118+y} Q128 200 136 ${300+y} Q142 340 132 ${370+y} Q150 360 158 ${340+y} Q170 300 176 ${250+y} L224 ${250+y} Q230 300 242 ${340+y} Q250 360 268 ${370+y} Q258 340 264 ${300+y} Q272 200 240 ${118+y} Z" fill="${f}" stroke-width="3.6"/><path d="M150 ${200+y} Q160 240 150 ${280+y} M250 ${200+y} Q240 240 250 ${280+y}" fill="none" stroke="#000" stroke-width="1.2" opacity=".3"/>`;
+  return `<path d="M160 120 Q140 200 146 ${300+y} L158 ${290+y} L164 ${320+y} L176 ${296+y} L186 ${314+y} L190 200 L210 200 L214 ${314+y} L224 ${296+y} L236 ${320+y} L242 ${290+y} L254 ${300+y} Q260 200 240 120 Z" fill="${f}" stroke-width="3.6"/>`}
+(function(){const _h=heroSpriteImg;heroSpriteImg=function(h){try{if(h&&h.hs==null&&h.nm)h.hs=hhash(h.nm+'|'+(h.uid||''))%240}catch(e){}return _h.apply(this,arguments)}})();
 </script>
 </body></html>
