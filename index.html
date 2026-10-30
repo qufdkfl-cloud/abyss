@@ -4777,6 +4777,138 @@ MONSTERS.push({n:'고대 대악마',spr:'archdemon@2',hp:190,atk:17,def:6},{n:'�
  // pause the silent tag when music is turned off so the iOS media session doesn't linger
  const _t=MU.toggle.bind(MU);MU.toggle=function(){const r=_t();try{if(!MU.on&&tag)tag.pause();else if(MU.on){const t=mkTag();if(t&&t.paused)t.play().catch(()=>{})}}catch(e){}return r};
 })();
+/* ---------- v62: music v5 — sections, key changes, new instruments, more tracks ---------- */
+(function(){
+const pk2=a=>a[Math.floor(Math.random()*a.length)];
+const PROGS=[[0,5,3,4],[5,3,0,4],[0,3,4,0],[3,4,0,0],[0,6,5,6],[5,6,0,0],[0,2,5,4],[3,0,4,5],[0,5,6,4],[5,4,3,4]];
+const EXTRA={
+ explore:[
+  {n:'물방울 동굴',sc:'dorian',prog:[0,6,5,6],bpm:58,cl:1,lead:'harp',layers:['pad','harp','cello','bell'],pl:'water'},
+  {n:'가라앉은 종탑',sc:'aeol',prog:[0,5,6,4],bpm:54,cl:2,lead:'bell',layers:['pad','cello','choir'],pl:'water'},
+  {n:'이끼 낀 숲길',sc:'dorian',prog:[0,3,0,4],bpm:64,cl:1,lead:'flute',layers:['pad','cello','harp'],pl:'forest'},
+  {n:'고목의 숨결',sc:'minor',prog:[0,6,3,4],bpm:60,cl:1,lead:'pluck',layers:['pad','cello','strings'],pl:'forest'},
+  {n:'핏빛 제단',sc:'phryg',prog:[0,1,6,1],bpm:60,cl:1,lead:'piano',layers:['pad','choir','cello','heart'],pl:'blood'},
+  {n:'붉은 순례',sc:'harm',prog:[0,5,1,4],bpm:70,cl:1,lead:'flute',layers:['pad','cello','heart'],pl:'blood'},
+  {n:'수정 동굴의 메아리',sc:'lydian',prog:[0,1,0,4],bpm:62,cl:1,lead:'bell',layers:['pad','harp','bell'],pl:'crystal'},
+  {n:'빛의 파편',sc:'dorian',prog:[0,4,3,0],bpm:68,cl:1,lead:'pluck',layers:['pad','bell','strings'],pl:'crystal'},
+  {n:'그림자 회랑',sc:'phryg',prog:[0,1,0,5],bpm:52,cl:2,lead:'piano',layers:['pad','choir','cello'],pl:'dark'},
+  {n:'무너진 왕의 길',sc:'harm',prog:[0,5,3,4],bpm:66,cl:1,lead:'flute',layers:['pad','cello','strings','choir']},
+  {n:'유랑하는 횃불',sc:'minor',prog:[0,6,5,4],bpm:72,cl:1,lead:'pluck',layers:['pad','cello','harp']}],
+ inn:[
+  {n:'선술집의 노래',sc:'dorian',prog:[0,6,0,4],bpm:84,cl:1,lead:'pluck',layers:['pad','cello','fire','harp']},
+  {n:'모닥불 곁에서',sc:'minor',prog:[0,5,6,4],bpm:68,cl:1,lead:'flute',layers:['pad','harp','fire']}],
+ battle:[
+  {n:'뼈의 북소리',sc:'phryg',prog:[0,1,0,5],bpm:120,cl:1,lead:'brass',layers:['ost16','drum2','cello','pad','lead']},
+  {n:'돌격',sc:'harm',prog:[0,5,4,4],bpm:128,cl:1,lead:'brass',layers:['ost','drum','choir','pad','lead']},
+  {n:'짐승의 사냥',sc:'dorian',prog:[0,6,3,4],bpm:116,cl:1,lead:'strings',layers:['ost16','drum','cello','lead']},
+  {n:'칼날의 춤',sc:'minor',prog:[0,3,6,4],bpm:124,cl:1,lead:'brass',layers:['ost16','drum2','pad','lead']}],
+ boss:[
+  {n:'고대 악마의 강림',sc:'harm',prog:[0,1,5,4],bpm:126,cl:1,lead:'brass',layers:['ost16','drum2','choir','cello','pad','lead','bell']},
+  {n:'멸망의 종소리',sc:'phryg',prog:[0,1,0,6],bpm:134,cl:1,lead:'brass',layers:['ost16','drum2','choir','pad','lead','bell']}]};
+const _list=MU.list,_pick=MU.pickTrack,_nt=MU.nt;
+Object.assign(MU,{
+ list(){const base=_list.call(this);const m=this.mode==='camp'?'inn':this.mode;let L=base.concat(EXTRA[m]||[]);
+  if(m==='explore'){const pl=this.place;L=L.filter(s=>!s.pl||s.pl===pl).concat(L.filter(s=>s.pl===pl))}return L},
+ pickTrack(force){_pick.call(this,force);const s=this.song;let a=pk2(PROGS);let g=0;while(s&&a.join()===s.prog.join()&&g++<5)a=pk2(PROGS);this.alt=a;this.mots={};this._blk=-1;this.trans=0;this.arpP=R(0,3)},
+ nt(d,o){return _nt.call(this,d,o)*Math.pow(2,(this.trans||0)/12)},
+ fight(){return this.mode==='battle'||this.mode==='boss'},
+ secOf(i){const blk=Math.floor(i/8);if(this.fight())return ['A','A2','B','brk','C','B2'][blk%6];return ['intro','A','A2','B','brk','A3','B2','out'][Math.min(blk,7)]},
+ curBpm(i){const s=this.song;if(!s)return 60;const sec=this.secOf(i||this.bar||0);return s.bpm*(this.fight()?(sec==='C'?1.06:sec==='brk'?0.97:1):(sec==='B'||sec==='B2'?1.04:sec==='out'?0.94:1))},
+ motFor(key){const M=this.mots||(this.mots={});if(!M[key]){
+   if(key==='A3'&&M.A)M[key]=M.A.map(b=>b.map(e=>({...e,d:e.d+2})));
+   else if(key==='B2'&&M.B)M[key]=M.B.map(b=>b.map(e=>({...e,d:Math.max(0,e.d+pk2([0,2,-1]))})));
+   else if(key==='A2'&&M.A)M[key]=M.A;else M[key]=this.makeMotif()}return M[key]},
+ onBlock(sec,blk){const f=this.fight();
+  if(f){const cyc=Math.floor(blk/6);this.trans=sec==='C'||sec==='B2'?[2,3,5][cyc%3]:[0,1,2][cyc%3]}
+  else this.trans=sec==='B2'?2:sec==='brk'?-2:0;
+  if(sec==='B'||sec==='C')this.arpP=R(0,3)},
+ sched(){if(!this.ctx||!this.song)return;const C=this.ctx;if(this.nextBar<C.currentTime-0.05)this.nextBar=C.currentTime+0.08;
+  while(this.nextBar<C.currentTime+2.0){this.playBar(this.bar,this.nextBar);this.nextBar+=240/this.curBpm(this.bar);this.bar++;
+   if(this.bar>=64&&!this.fight())this.pickTrack(true)}},
+ // --- new voices ---
+ flute(f,t,dur,v,pan){const C=this.ctx;const g=this.out(pan||0,2);const o=C.createOscillator(),o2=C.createOscillator(),og=C.createGain();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;og.gain.value=0.1;o2.connect(og);
+  const vib=C.createOscillator(),vg=C.createGain();vib.frequency.value=5.2;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(10,t+Math.min(0.45,dur*0.6));vib.connect(vg);vg.connect(o.detune);vg.connect(o2.detune);
+  o.connect(g);og.connect(g);this.env(g,t,Math.min(0.07,dur*0.3),v,dur,Math.min(0.35,dur*0.5));
+  const s=C.createBufferSource(),bp=C.createBiquadFilter(),ng=C.createGain();s.buffer=this.noise;bp.type='bandpass';bp.frequency.value=Math.min(8000,f*2);bp.Q.value=2;s.connect(bp);bp.connect(ng);ng.connect(g);ng.gain.setValueAtTime(0.35,t);ng.gain.exponentialRampToValueAtTime(0.04,t+0.18);
+  [o,o2,vib].forEach(x=>{x.start(t);x.stop(t+dur+0.1)});s.start(t,Math.random());s.stop(t+dur+0.1)},
+ pluck(f,t,v,pan,dec){const C=this.ctx;dec=dec||0.55;const g=this.out(pan||0,2);const o=C.createOscillator(),lp=C.createBiquadFilter();o.type='sawtooth';o.frequency.value=f;lp.type='lowpass';lp.Q.value=2.5;
+  lp.frequency.setValueAtTime(Math.min(9000,f*9),t);lp.frequency.exponentialRampToValueAtTime(Math.max(180,f*1.1),t+dec);o.connect(lp);lp.connect(g);this.env(g,t,0.003,v,dec*1.4,dec*1.3);o.start(t);o.stop(t+dec*1.5)},
+ brass(fs,t,dur,v,pan){const C=this.ctx;const lp=C.createBiquadFilter();lp.type='lowpass';lp.Q.value=1.4;lp.frequency.setValueAtTime(260,t);lp.frequency.linearRampToValueAtTime(2800,t+0.08);lp.frequency.exponentialRampToValueAtTime(1000,t+Math.max(0.25,dur));
+  const g=this.out(pan||0,1);lp.connect(g);this.env(g,t,0.035,v,dur,Math.min(0.4,dur*0.5));
+  fs.forEach(f=>[-6,6].forEach(ct=>{const o=C.createOscillator();o.type='sawtooth';o.frequency.value=f;o.detune.value=ct;o.connect(lp);o.start(t);o.stop(t+dur+0.1)}))},
+ timp(f,t,v){const C=this.ctx;const o=C.createOscillator(),g=this.out(0,1);o.type='sine';o.frequency.setValueAtTime(f*1.1,t);o.frequency.exponentialRampToValueAtTime(f,t+0.08);this.env(g,t,0.003,v,1.3,1.2);o.connect(g);o.start(t);o.stop(t+1.4);
+  const s=C.createBufferSource(),lp=C.createBiquadFilter(),ng=this.out(0,1);s.buffer=this.noise;lp.type='lowpass';lp.frequency.value=500;s.connect(lp);lp.connect(ng);this.env(ng,t,0.002,v*0.5,0.12,0.1);s.start(t,Math.random());s.stop(t+0.15)},
+ hat(t,v,open){const C=this.ctx;const s=C.createBufferSource(),hp=C.createBiquadFilter(),g=this.out((Math.random()-0.5)*0.5,0);s.buffer=this.noise;hp.type='highpass';hp.frequency.value=open?6000:8000;s.connect(hp);hp.connect(g);const d=open?0.28:0.05;this.env(g,t,0.001,v,d,d*0.9);s.start(t,Math.random());s.stop(t+d+0.02)},
+ glide(t,f0,f1,dur,v,pan){const C=this.ctx;const o=C.createOscillator(),g=this.out(pan,2);o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);this.env(g,t,0.004,v,dur,dur*0.8);o.connect(g);o.start(t);o.stop(t+dur+0.05)},
+ wind(t,dur,v){const C=this.ctx;const s=C.createBufferSource(),bp=C.createBiquadFilter(),g=this.out((Math.random()-0.5),1);s.buffer=this.noise;s.loop=true;bp.type='bandpass';bp.Q.value=6;bp.frequency.setValueAtTime(300,t);bp.frequency.exponentialRampToValueAtTime(900+Math.random()*600,t+dur*0.5);bp.frequency.exponentialRampToValueAtTime(250,t+dur);
+  s.connect(bp);bp.connect(g);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+dur*0.5);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.start(t,Math.random());s.stop(t+dur+0.05)},
+ leadNote(kind,f,t,len,v,pan){if(kind==='piano')this.piano(f,t,v*1.0,pan);else if(kind==='harp')this.harp(f,t,v*1.1,pan);else if(kind==='flute')this.flute(f*2,t,Math.max(0.25,len),v*0.55,pan);
+  else if(kind==='pluck')this.pluck(f,t,v*0.55,pan,0.6);else this.bell(f*2,t,v*0.45,pan)},
+ ambience(pl,t,barLen){if(Math.random()>0.45)return;const tt=t+Math.random()*barLen;
+  if(pl==='water'){for(let k=0;k<R(1,3);k++){const x=tt+k*0.13;const f=900+Math.random()*900;this.glide(x,f,f*2.2,0.07,0.035,Math.random()-0.5)}}
+  else if(pl==='forest'){const f=2200+Math.random()*1500;for(let k=0;k<R(2,4);k++)this.glide(tt+k*0.11,f*(1+k*0.05),f*1.35,0.07,0.018,0.6)}
+  else if(pl==='dark'||pl==='blood')this.wind(t,barLen*1.6,0.025);
+  else if(pl==='crystal')this.bell(this.nt(pk2([0,2,4]),3),tt,0.02,Math.random()-0.5)},
+ // --- composition ---
+ playBar(i,t){const s=this.song;if(!s)return;if(!this.alt)this.alt=s.prog;const L=s.layers,has=k=>L.includes(k);const fight=this.fight(),boss=this.mode==='boss';
+  const sec=this.secOf(i),blk=Math.floor(i/8);if(blk!==this._blk){this._blk=blk;this.onBlock(sec,blk)}
+  const beat=60/this.curBpm(i),barLen=beat*4,bi=i%8;const altSec=sec==='B'||sec==='B2'||sec==='C';const prog=altSec?this.alt:s.prog;
+  const ci=prog[Math.floor(i/s.cl)%prog.length];const chordStart=i%s.cl===0;const tri=[ci,ci+2,ci+4];
+  const pl=this.mode==='inn'||this.mode==='camp'?'inn':this.place;
+  if(!fight){
+   const I={intro:0,A:1,A2:2,B:3,brk:0,A3:2,B2:3,out:1}[sec];
+   if(has('pad')&&chordStart)this.pad([this.nt(tri[0],0),this.nt(tri[1],0),this.nt(tri[2],0),this.nt(tri[0],1)],t,barLen*s.cl+beat,sec==='brk'?0.03:0.04+I*0.004);
+   if((has('cello')||I>=2)&&chordStart&&sec!=='brk'&&sec!=='intro')this.cello(this.nt(ci,-1),t,barLen*s.cl*0.98,0.06+I*0.008,-0.1);
+   if(has('choir')&&chordStart&&(sec==='B'||sec==='B2'||sec==='brk'||(pl==='dark'&&I>=2)))this.choir([this.nt(tri[0],1),this.nt(tri[2],1),this.nt(tri[1],2)],t,barLen*s.cl,0.04,blk%2);
+   if(has('heart')&&sec!=='intro'){this.drum(t,0.2,62);this.drum(t+beat*0.45,0.13,58)}
+   if(has('fire'))this.fire(t,barLen);
+   // lead melody
+   const mot=this.motFor(sec==='intro'||sec==='out'?'A':sec==='brk'?'B':sec)[bi];
+   if(sec!=='brk'){const thin=sec==='intro'||sec==='out';mot.forEach((e,k)=>{if(thin&&k>0)return;const f=this.nt(e.d,1);const tt=t+e.bt*beat+Math.random()*0.02;
+     this.leadNote(s.lead,f,tt,e.len*beat,thin?0.08:0.11,0.15);if(sec==='B2'&&s.lead!=='flute')this.leadNote('flute',f,tt,e.len*beat*0.9,0.05,-0.2)})}
+   else if(bi%2===0)this.bell(this.nt(pk2(tri),2),t+beat,0.03,0.3);
+   // counter-melody (from section A2/B on)
+   if(I>=2&&bi%2===1){const cm=pl==='forest'||pl==='blood'?'flute':pl==='crystal'?'bell':pl==='water'?'harp':'cello';const d=tri[(bi>>1)%3]+(sec==='B2'?7:0);
+     if(cm==='cello')this.cello(this.nt(d,1),t,barLen*0.95,0.035,0.35);else this.leadNote(cm,this.nt(d,0),t+beat*2,beat*2,0.06,0.35)}
+   // arpeggio
+   if(I>=2||has('harp')&&sec!=='intro'&&sec!=='brk'){const P=[[0,1,2,1,3,2,1,2],[0,2,1,2,0,2,3,2],[2,1,0,1,2,3,2,1],[0,1,2,3,2,1,0,1]][this.arpP||0];const n=I>=3?8:4,st=barLen/n;
+     for(let k=0;k<n;k++){const d=tri[P[k]%3]+(P[k]===3?7:0);const f=this.nt(d,0);if(pl==='crystal'||s.lead==='bell')this.harp(f*2,t+k*st,0.035,k%2?0.4:-0.4);else this.pluck(f,t+k*st,0.03,k%2?0.4:-0.4,0.35)}}
+   // light percussion in fuller sections
+   if(I>=3||(pl==='blood'&&I>=2)||(pl==='inn'&&s.bpm>=80&&I>=1)){this.drum(t,0.16,pl==='blood'?70:130);this.drum(t+beat*2.5,0.11,pl==='blood'?75:140);for(let k=0;k<8;k++)if(k%2||Math.random()<0.3)this.hat(t+k*beat*0.5,k%2?0.012:0.008)}
+   if(has('bell')&&bi===0)this.bell(this.nt(pk2(tri),2),t+beat*2,0.03,0.4);
+   if(has('strings')&&chordStart&&I>=1)this.cello(this.nt(tri[2],1),t,barLen*s.cl,0.03,0.3);
+   if(sec==='A2'&&bi===7||sec==='A3'&&bi===7)this.swell(t,barLen,0.03);
+   if(sec==='out'&&bi===7)this.bell(this.nt(0,2),t,0.04,0);
+   this.ambience(pl,t,barLen);
+   return}
+  // ===== battle / boss =====
+  const I={A:1,A2:2,B:3,brk:1,C:4,B2:3}[sec];
+  if(has('pad')&&chordStart)this.pad([this.nt(tri[0],0),this.nt(tri[1],0),this.nt(tri[2],0),this.nt(tri[0],1)],t,barLen*s.cl+beat,0.028);
+  if((has('cello')||I>=3)&&chordStart&&sec!=='brk')this.cello(this.nt(ci,-1),t,barLen*s.cl*0.98,0.09,-0.1);
+  if((has('choir')||boss)&&chordStart&&(sec==='B'||sec==='C'||sec==='B2'))this.choir([this.nt(tri[0],1),this.nt(tri[2],1),this.nt(tri[1],2)],t,barLen*s.cl,0.05,blk%2);
+  // ostinato with section-dependent rhythm
+  const PAT={A:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],A2:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],B:[1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1],brk:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],C:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],B2:[1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1]}[sec];
+  const st=barLen/16;for(let k=0;k<16;k++){if(!PAT[k])continue;const d=k%4===2?tri[2]:k%8===6?tri[1]:tri[0];this.stab(this.nt(d,0),t+k*st,sec==='brk'?st*6:st*0.9,(k%4===0?0.065:0.04)*(sec==='brk'?1.3:1),k%2?0.25:-0.25)}
+  // drums
+  if(sec==='brk'){if(bi===0||bi===4)this.timp(this.nt(0,-1),t,0.4);if(bi>=6){const n=bi===6?8:16;for(let k=0;k<n;k++)this.timp(this.nt(0,-1),t+k*barLen/n,0.12+0.25*(k/n)*(bi-5))}if(bi===7)this.swell(t,barLen,0.06)}
+  else{const d2=sec==='B'||sec==='C'||has('drum2')&&sec!=='A';
+   if(d2){[0,1.5,2,3].forEach(b=>this.drum(t+b*beat,b===0?0.6:0.4,b===0?80:100))}else{this.drum(t,0.5,90);this.drum(t+beat*2,0.42,80)}
+   const hn=I>=4?16:I>=2?8:0;for(let k=0;k<hn;k++)this.hat(t+k*barLen/hn,k%(hn/4)===0?0.03:0.018,k===hn-2&&bi%2===1);
+   if(sec==='C'&&bi%2===0)this.timp(this.nt(0,-1),t,0.35);
+   if(bi%4===3){const F=[[3,3.25,3.5,3.75],[3,3.5,3.75],[2.5,3,3.25,3.5,3.75],[3.5,3.625,3.75,3.875]][(blk+i)%4];F.forEach((b,k)=>this.drum(t+b*beat,0.3+k*0.04,110+k*8))}
+   if(bi===7)this.swell(t,barLen,0.05)}
+  // lead lines
+  const mot=this.motFor(sec==='A2'?'A':sec==='B2'?'B':sec==='brk'?'A':sec)[bi];
+  const lk=s.lead==='brass'?'brass':'strings';
+  if(sec==='A2'||sec==='B'||sec==='B2'||sec==='C'||(sec==='A'&&has('lead')&&bi>=4))mot.forEach(e=>{const f=this.nt(e.d+2,1),tt=t+e.bt*beat,len=Math.max(0.25,e.len*beat*0.92);
+    if(lk==='brass'||sec==='C')this.brass([f],tt,len,sec==='C'?0.05:0.045,0.1);else this.cello(f,tt,len,0.05,0.1);
+    if(sec==='C'||sec==='B2')this.flute(f*2,tt,len,0.03,-0.25)});
+  if((sec==='B'||sec==='C')&&bi%2===0)this.brass([this.nt(tri[0],0),this.nt(tri[2],0)],t,beat*0.9,0.05,-0.15);
+  if(sec==='C'&&bi%4===3)for(let k=0;k<8;k++)this.pluck(this.nt(ci+k,1),t+beat*3+k*beat/8,0.035,k%2?0.3:-0.3,0.18);
+  if(has('bell')&&i%4===0)this.bell(this.nt(tri[0],2),t,0.04,0.3)}
+});
+})();
+
 /* ---------- event queue ---------- */
 function nextQueued(){if(!S.heroes.length&&S.screen!=='start'&&S.screen!=='over'){gameOver();return}
   if(S.evoQ.length){const h=S.heroes.find(x=>x.uid===S.evoQ[0]);if(!h){S.evoQ.shift();return nextQueued()}S.modal={type:'evo',uid:h.uid,opts:evoChoices(h)}}
