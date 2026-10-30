@@ -3800,7 +3800,7 @@ function berserkerSVG(h){
   if(fin)A(`<g class="ksteam" fill="none" stroke="#ff6a5a" stroke-width="2.2" opacity=".55"><path d="M120 160 Q110 140 122 120 Q132 100 120 80"/><path d="M280 160 Q290 140 278 120 Q268 100 280 80"/></g>`);
   A(`</g>`);
   const filt=h.shiny&&SHINY[h.shiny]?` style="filter:${SHINY[h.shiny].f}"`:'';
-  return `<svg class="pxi vx kn kz" viewBox="40 -16 360 570" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"${filt}>${defs}<ellipse cx="200" cy="550" rx="120" ry="12" fill="#000" opacity=".5"/><g stroke="#0a0708" stroke-linejoin="round" stroke-linecap="round">${s}</g></svg>`}
+  return `<svg class="pxi vx kn kz" viewBox="${st>=3?'-10 -70 460 676':st>=2?'20 -40 400 610':'40 -16 360 570'}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"${filt}>${defs}<ellipse cx="200" cy="550" rx="120" ry="12" fill="#000" opacity=".5"/><g stroke="#0a0708" stroke-linejoin="round" stroke-linecap="round">${s}</g></svg>`}
 (function(){const _k=knightSVG;knightSVG=function(h){if(stageOf(h)>=1&&kPath(h)==='berserk')return berserkerSVG(h);return _k(h)}})();
 
 /* ---------- v51: hand-drawn MAGE — cute witch girl, big pointed hat, skirt; paths light/dark/neutral ---------- */
