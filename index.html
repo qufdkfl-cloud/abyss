@@ -5497,7 +5497,7 @@ const gcrop=s=>{const c=GCROP[s];return c?` style="left:${c[0]}%;width:${c[1]}%;
 function giantBoss(){const B=S.battle;return B&&B.giant?B.en.find(e=>e.boss):null}
 (function(){
  const _sb=startBattle;startBattle=function(en,kind,ret){const r=_sb.apply(this,arguments);const B=S.battle;
-  if(B&&kind==='boss'&&S.floor>=GIANT_MIN){const b=B.en.find(e=>e.boss);if(b){B.giant=1;const wall=!!b.wall,fin=S.floor>=30;
+  if(B&&kind==='boss'&&S.floor>=GIANT_MIN&&S.floor%5===0){const b=B.en.find(e=>e.boss);if(b){B.giant=1;const wall=!!b.wall,fin=S.floor>=30;
     const hm=fin?1.6:S.floor<10?1.2:wall?1.5:1.35,am=fin?1.2:S.floor<10?1.05:wall?1.15:1.1;b.maxhp=Math.round(b.maxhp*hm);b.hp=b.maxhp;b.atk=Math.round(b.atk*am);b.def=Math.round(b.def*1.1);
     if(S.floor>=15)b.acts=(b.acts||1)+1;B._ghp=b.hp;try{if(B.log&&B.log[0]&&/등장!$/.test(B.log[0]))B.log[0]=`${b.n} 등장!`}catch(e){}
     try{setTimeout(()=>{try{SFX.roar();fxShake&&fxShake(2);fxEl(`<b>거대 보스 출현</b><span>${b.n}</span>`,'fx-banner bust gboss-banner',null,2400,{'--c':'#ff4a3a'})}catch(e){}},350)}catch(e){}}}
