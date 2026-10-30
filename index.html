@@ -5311,7 +5311,7 @@ function vPage(){const p=S.page;const I=S.inn;const f=S.floor;
   ${S.books.some(n=>n>=4)?`<div class="label">누구를 변신시킬까?</div><div class="list">${BOOKS.map((b,bi)=>S.books[bi]<4?'':S.heroes.map(h=>h.boss?'':`<button class="btn" data-a="transform" data-v="${bi}|${h.uid}">${h.nm}(${hname(h)}) → <b style="color:var(--g5)">${BOSSCLS[b.k].n}</b></button>`).join('')).join('')}</div>`:'<p class="muted center sm">책은 보스, 괴물, 서가에서 아주 드물게 나온다.</p>'}`;
  if(p.n==='supply')return `${pageHead('보급품')}<div class="card"><div class="stats4 num">${Object.keys(PROVN).map(k=>`<span>${PROVN[k]}<b>${S.prov[k]}</b></span>`).join('')}</div></div>
   <div class="label">마법 두루마리 · 전투 중 화면 오른쪽 버튼으로 사용</div><div class="list">${SCROLL_KEYS.map(k=>`<div class="item" style="--gc:var(--brass)"><div class="qe big">${SCROLLS[k].e}</div><div><div class="in">${SCROLLS[k].n}</div><div class="is">${SCROLLS[k].d}</div></div><b class="num">${S.scrolls[k]||0}</b></div>`).join('')}</div>`;
- if(p.n==='settings')return `${pageHead('설정')}<div class="card"><div class="label">이펙트</div><div class="acts">${['최소','보통','화려'].map((t,i)=>`<button class="btn${FXQ===i?' on':''}" data-a="fxq" data-v="${i}">${t}</button>`).join('')}</div><div class="sm muted">어지럽거나 느리면 '최소'로. 화면 흔들림은 '화려'에서만 나와요.</div></div><div class="card"><div class="label">음악</div><div class="acts"><button class="btn${MU.on?' on':''}" data-a="music">${MU.on?'끄기':'켜기'}</button>${MU.on?`<button class="btn" data-a="vol">음량 ${['작게','보통','크게'][MU.vol]}</button><button class="btn" data-a="skipTrack">다음 곡</button>`:''}</div>
+ if(p.n==='settings')return `${pageHead('설정')}<div class="card"><div class="label">이펙트</div><div class="acts">${['최소','보통','화려'].map((t,i)=>`<button class="btn${FXQ===i?' on':''}" data-a="fxq" data-v="${i}">${t}</button>`).join('')}</div><div class="sm muted">어지럽거나 느리면 '최소'로. 화면 흔들림은 '화려'에서만 나와요.</div></div><div class="card"><div class="label">기술 효과음</div><div class="acts">${['끄기','작게','보통','크게'].map((t,i)=>`<button class="btn${SFX.lv===i?' on':''}" data-a="sfxv" data-v="${i}">${t}</button>`).join('')}</div></div><div class="card"><div class="label">음악</div><div class="acts"><button class="btn${MU.on?' on':''}" data-a="music">${MU.on?'끄기':'켜기'}</button>${MU.on?`<button class="btn" data-a="vol">음량 ${['작게','보통','크게'][MU.vol]}</button><button class="btn" data-a="skipTrack">다음 곡</button>`:''}</div>
   ${MU.on&&MU.tr?`<p class="sm muted">지금 흐르는 곡: <b style="color:var(--ink)">${MU.tr.n}</b></p>`:''}<p class="sm muted">층마다 던전에 맞는 곡이 나오고, 보스전은 빠르게, 여관은 잔잔하게 바뀐다.</p></div>
   <div class="card"><div class="label">전투</div><button class="btn${S.auto?' on':''}" data-a="toggleAuto">자동 전투 ${S.auto?'켜짐':'꺼짐'}</button></div>`;
  if(p.n==='setup')return `${pageHead('파티 속성','1열(앞)부터 4열(뒤)')}<div class="setup">${CLS_ORDER.map((c,i)=>{const C=CLASSES[c];return `<div class="scard"><div class="lineup sm">${[0,3,6,9].map(t=>heroArt({cls:c,el:S.setup[c],tier:t,ali:0,eq:{}})).join('')}</div><h3>${C.n} <span class="muted sm">${i+1}열 · ${C.role}</span></h3>
@@ -5417,6 +5417,63 @@ function render(){if(!S)return;if(pact('nopot'))S.prov.potion=0;
 function start(data){S=data&&data.S?data.S:fresh();S.page=S.page||null;if(S.screen==='battle'&&S.battle&&!S.battle.act)setTimeout(nextTurn,400);render()}
 window.claude?.hot?.snapshot?.(()=>({S}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+
+
+/* ---------- v64: skill sound effects ---------- */
+const SFX={lv:(()=>{try{const v=localStorage.getItem('abyss-sfx');return v==null?2:+v}catch(e){return 2}})(),g:null,last:{},
+ bus(){if(!this.lv)return null;if(!MU.ctx){if(!MU.init())return null}const C=MU.ctx;if(C.state==='suspended'&&!(C instanceof (window.OfflineAudioContext||Object))){try{const p=C.resume();p&&p.catch&&p.catch(()=>{})}catch(e){}}
+  if(!this.g){const lim=C.createDynamicsCompressor();lim.threshold.value=-8;lim.ratio.value=12;lim.attack.value=0.002;lim.release.value=0.15;lim.connect(C.destination);this.g=C.createGain();this.g.connect(lim)}
+  this.g.gain.value=[0,0.35,0.6,0.9][this.lv];return C},
+ o(pan){const C=MU.ctx,g=C.createGain();if(C.createStereoPanner){const p=C.createStereoPanner();p.pan.value=pan||0;g.connect(p);p.connect(this.g)}else g.connect(this.g);return g},
+ env(g,t,a,v,d){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+d)},
+ nz(t,d,type,f0,f1,q,v,pan){const C=MU.ctx;const s=C.createBufferSource(),f=C.createBiquadFilter(),g=this.o(pan);s.buffer=MU.noise;f.type=type;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t);if(f1)f.frequency.exponentialRampToValueAtTime(f1,t+d);s.connect(f);f.connect(g);this.env(g,t,Math.min(0.01,d*0.2),v,d);s.start(t,Math.random());s.stop(t+d+0.02)},
+ os(t,d,type,f0,f1,v,pan,a){const C=MU.ctx;const o=C.createOscillator(),g=this.o(pan);o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d);o.connect(g);this.env(g,t,a||0.004,v,d);o.start(t);o.stop(t+d+0.02)},
+ // building blocks
+ swish(t,v,pan){this.nz(t,0.16,'bandpass',600,4200,1.6,v,pan)},
+ heavySwish(t,v,pan){this.nz(t,0.26,'bandpass',300,2200,1.2,v,pan);this.os(t+0.05,0.2,'sine',220,90,v*0.25,pan)},
+ thud(t,v,pan){this.os(t,0.22,'sine',130,45,v,pan);this.nz(t,0.08,'lowpass',1200,300,0.7,v*0.6,pan)},
+ clang(t,v,pan){[1,2.31,3.17,4.6].forEach((r,i)=>this.os(t,0.35-i*0.05,'triangle',900*r,880*r,v*[0.5,0.3,0.2,0.12][i],pan));this.nz(t,0.05,'highpass',3000,0,0.7,v*0.5,pan)},
+ slice(t,v,pan){this.nz(t,0.09,'highpass',2500,6000,0.8,v,pan);this.os(t,0.07,'sawtooth',1800,600,v*0.15,pan)},
+ sparkle(t,v,n){for(let k=0;k<(n||5);k++){const f=1800+Math.random()*2600;this.os(t+k*0.045,0.25,'sine',f,f*1.01,v*0.4,(Math.random()-0.5)*0.8)}},
+ chime(t,v,base){[0,4,7,12].forEach((s,k)=>this.os(t+k*0.06,0.6,'sine',base*Math.pow(2,s/12),0,v*0.35,k%2?0.3:-0.3,0.01))},
+ boom(t,v){this.os(t,0.6,'sine',90,32,v,0);this.nz(t,0.5,'lowpass',2400,120,0.8,v*0.8,0)},
+ fireS(t,v,pan){this.nz(t,0.4,'bandpass',800,2500,0.8,v,pan);this.nz(t+0.05,0.35,'lowpass',600,200,0.6,v*0.6,pan)},
+ iceS(t,v,pan){this.nz(t,0.3,'highpass',5000,9000,1.5,v*0.7,pan);[2600,3300,4100].forEach((f,k)=>this.os(t+k*0.04,0.3,'sine',f,f*0.98,v*0.25,pan))},
+ zap(t,v,pan){const C=MU.ctx;const o=C.createOscillator(),g=this.o(pan);o.type='sawtooth';for(let k=0;k<8;k++)o.frequency.setValueAtTime(300+Math.random()*1800,t+k*0.025);o.connect(g);this.env(g,t,0.003,v*0.35,0.22);o.start(t);o.stop(t+0.24);this.nz(t,0.2,'highpass',3000,0,0.7,v*0.4,pan)},
+ dark(t,v,pan){this.os(t,0.55,'sawtooth',110,55,v*0.25,pan,0.04);this.nz(t,0.5,'bandpass',400,150,3,v*0.6,pan)},
+ water(t,v,pan){for(let k=0;k<4;k++){const f=500+Math.random()*700;this.os(t+k*0.05,0.1,'sine',f,f*2.4,v*0.35,pan)}this.nz(t,0.3,'lowpass',1500,400,0.7,v*0.5,pan)},
+ wind(t,v,pan){this.nz(t,0.35,'bandpass',500,3000,4,v*0.8,pan)},
+ can(k){const n=performance.now?performance.now():Date.now();if(this.last[k]&&n-this.last[k]<60)return false;this.last[k]=n;return true},
+ // events
+ skill(h,sid){const C=this.bus();if(!C)return;const sk=SK[sid];if(!sk||!this.can('sk'))return;const t=C.currentTime+0.01;const ult=!!sk.ult;
+  const pan=-0.25,v=ult?0.9:0.7;const el=h.el;const cls=h.cls;const mag=sk.s==='mag';
+  if(sk.k==='dmg'){
+   if(!mag){if(cls==='warrior'){this.heavySwish(t,v,pan);this.thud(t+0.2,v*0.9,0.2)}else{this.swish(t,v,pan);this.slice(t+0.14,v*0.8,0.2);if(Math.random()<0.5)this.clang(t+0.15,v*0.25,0.2)}
+    if(sk.hits>1)for(let k=1;k<Math.min(4,sk.hits);k++){this.swish(t+k*0.12,v*0.7,pan);this.slice(t+0.14+k*0.12,v*0.6,0.2)}}
+   else{const f={fire:'fireS',water:'water',wind:'zap',dark:'dark'}[el]||'zap';this.os(t,0.18,'sine',300,900,v*0.25,pan);this[f](t+0.12,v,0.2);if(el==='water')this.iceS(t+0.16,v*0.5,0.2)}
+   if(sk.t==='allEnemies'){this.boom(t+0.22,v*0.7);this.sparkle(t+0.2,v*0.4,4)}
+   if(ult){this.boom(t+0.3,v);this.chime(t,v*0.6,sid==='judgement'||/holy|light/.test(sid)?660:330)}}
+  else if(sk.k==='heal'||sk.k==='regen'){this.chime(t,v*0.8,520);this.sparkle(t+0.15,v*0.6,6)}
+  else if(sk.k==='shield'||sk.k==='taunt'){this.clang(t,v*0.7,0);this.os(t,0.5,'sine',220,220,v*0.3,0,0.02)}
+  else if(sk.k==='stress'||sk.k==='relief'){this.chime(t,v*0.5,440)}
+  else{this.os(t,0.35,'triangle',330,660,v*0.3,pan,0.02);this.sparkle(t+0.1,v*0.4,3)}},
+ enemy(e,mode){const C=this.bus();if(!C||!this.can('en'))return;const t=C.currentTime+0.01,v=e.boss?0.85:0.6,pan=0.25;
+  if(mode==='aoe'){this.heavySwish(t,v,pan);this.boom(t+0.2,v*0.8)}
+  else if(mode==='stress'){this.dark(t,v,pan);this.os(t,0.6,'sine',180,170,v*0.2,pan,0.1)}
+  else if(mode==='exec'){this.heavySwish(t,v,pan);this.slice(t+0.18,v,-0.2);this.boom(t+0.2,v*0.6)}
+  else{if(e.rng){const f={fire:'fireS',water:'water',wind:'zap',dark:'dark'}[e.el]||'dark';this[f](t+0.05,v*0.8,pan)}else{this.swish(t,v*0.8,pan);this.thud(t+0.16,v*0.8,-0.2)}}},
+ crit(){const C=this.bus();if(!C||!this.can('cr'))return;const t=C.currentTime+0.2;this.clang(t,0.5,0);this.slice(t,0.5,0);this.os(t,0.3,'square',1200,1600,0.06,0)},
+ judg(){const C=this.bus();if(!C)return;const t=C.currentTime+0.02;this.boom(t,1);this.chime(t,0.8,880);this.sparkle(t+0.1,0.7,10)},
+ death(){const C=this.bus();if(!C||!this.can('dd'))return;const t=C.currentTime+0.05;this.os(t,1.6,'sine',98,92,0.4,0,0.01);this.os(t,1.6,'sine',98*2.76,98*2.7,0.12,0,0.01)},
+ evade(){const C=this.bus();if(!C||!this.can('ev'))return;this.swish(C.currentTime+0.05,0.45,0.3)}};
+(function(){
+ const _sf=skillFX;skillFX=function(h,sid,tu){try{SFX.skill(h,sid)}catch(e){}return _sf.apply(this,arguments)};
+ const _ef=enemyFX;enemyFX=function(e,mode){try{SFX.enemy(e,mode)}catch(er){}return _ef.apply(this,arguments)};
+ const _fl=float;float=function(u,text,kind){try{if(kind==='crit')SFX.crit();else if(text==='회피!')SFX.evade()}catch(e){}return _fl.apply(this,arguments)};
+ const _jf=judgFX;judgFX=function(){try{SFX.judg()}catch(e){}return _jf.apply(this,arguments)};
+ if(typeof enterDD==='function'){const _dd=enterDD;enterDD=function(){try{SFX.death()}catch(e){}return _dd.apply(this,arguments)}}
+ A.sfxv=function(v){SFX.lv=+v;try{localStorage.setItem('abyss-sfx',SFX.lv)}catch(e){}if(SFX.lv){try{SFX.bus();SFX.chime(MU.ctx.currentTime+0.02,0.5,520)}catch(e){}}render()};
+})();
 
 </script>
 </body></html>
