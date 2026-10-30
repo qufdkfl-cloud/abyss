@@ -3190,7 +3190,7 @@ function vForge(){const rows=S.heroes.map(h=>{const sl=['w','a','r'].map(k=>{con
     const up=it.up||0,c=enhCost(it),can=up<maxUp()&&(S.mats||0)>=c.m&&S.gold>=c.g;
     return `<div class="frow"><button class="slotic${upCls(up)}" data-a="itemOpen" data-v="${it.id}" style="--gc:${icol(it)}">${itemArt(it)}</button><div class="fi"><div class="in" style="color:${icol(it)}">${it.n}</div><div class="is">${up>=maxUp()?'최대 강화':`+${up+1} 성공 ${enhRateTxt(up)} · 마석 ${c.m} · 금화 ${fmtN(c.g)}`}</div></div><button class="btn gold sm" data-a="enh" data-v="${it.id}" ${can?'':'disabled'}>강화</button></div>`}).join('');
     return `<div class="card fcard"><div class="fhead">${heroArt(h)}<div style="min-width:0;flex:1"><b>${h.nm}</b> <span class="sm muted">Lv.${h.lv}</span><div class="sm muted">${hname(h)}</div><div class="fpow">⚔ ${fmtN(power(h))}</div></div></div>${sl}${stoneBtn(h)}</div>`}).join('');
-  return `${pageHead('대장간',`마석 ${S.mats||0} · 💎 진화석 ${S.stones||0}`)}
+  return `${pageHead('대장간',`마석 ${S.mats||0} · 💎 진화석 ${S.stones||0} · 🔮 신비 ${S.smat||0}`)}
   <div class="card sm">무기 강화는 공격·마력, 갑옷은 체력·방어, 장신구는 모든 능력을 크게 올려요. +10, +15에서 한 번 더 크게 뛰어요. 마석은 안 쓰는 장비를 분해해서 얻어요.</div>
   <div class="powbig">⚔ 파티 전투력 <b>${fmtN(partyPow())}</b></div>${rows}
   <button class="btn" style="width:100%" data-a="page" data-v="bag">가방에서 장비 분해하기 (마석 얻기)</button>`}
@@ -3225,7 +3225,7 @@ function vCamp(){const f=S.floor;const I=S.inn;const al=live();const hurt=al.fil
   return `<header class="hud"><div class="hrow"><h2>휴식처</h2><span class="sub">${f-1}층 정복</span><span class="gold num">금화 <b>${fmtN(S.gold)}</b></span></div><div class="powbig">⚔ 파티 전투력 <b>${fmtN(partyPow())}</b></div></header>
   ${strip()}
   ${wallCard()}
-  <button class="campbig hot" data-a="page" data-v="forge"><span class="cbi">🔨</span><span class="cbt"><b>대장간 · 강화 / 진화</b><small>마석 ${S.mats||0} · 💎 진화석 ${S.stones||0}${anyEnh?' · <em>지금 강화 가능!</em>':''}</small></span></button>
+  <button class="campbig hot" data-a="page" data-v="forge"><span class="cbi">🔨</span><span class="cbt"><b>대장간 · 강화 / 진화</b><small>마석 ${S.mats||0} · 💎 진화석 ${S.stones||0} · 🔮 신비 ${S.smat||0}${anyEnh?' · <em>지금 강화 가능!</em>':''}</small></span></button>
   <div class="card"><div class="label">휴식 ${restDone?'· ✓ 완료':hurt||stressed?`· 다친 동료 ${hurt} · 지친 동료 ${stressed}`:'· 모두 괜찮음'}</div>${restDone?'':`<div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button class="btn" data-a="rest" data-v="free">대충 쉬기<small>체력 30%</small></button><button class="btn gold" data-a="restFull" ${S.gold<fullCost?'disabled':''}>푹 쉬기 · ${fmtN(fullCost)}<small>체력 전부 · 스트레스 -45</small></button></div>`}</div>
   <button class="campbig rift" data-a="page" data-v="rift"><span class="cbi">🌀</span><span class="cbt"><b>심연 균열 · 파밍</b><small>몇 번이든 사냥해서 장비·마석·경험치 모으기${S.riftRuns?` · ${S.riftRuns}회 사냥`:''}</small></span></button>
   <button class="campbig" data-a="page" data-v="merc"><span class="cbi">🛡</span><span class="cbt"><b>용병소</b><small>${empty?`빈자리 ${empty}개 — 채우자`:'더 강한 용병과 교체'}</small></span></button>
@@ -5697,6 +5697,50 @@ petAct=function(assist,tgtUid){const p=S.pet;const B=S.battle;if(!p||!B)return;c
 @keyframes pdash{0%{transform:none}35%{transform:translate(70px,-60px) scale(1.35)}55%{transform:translate(64px,-54px) scale(1.25)}100%{transform:none}}
 @keyframes pdash2{0%{transform:none}40%{transform:translate(90px,-70px) scale(1.2) rotate(12deg)}100%{transform:none}}
 @keyframes pskill{0%{opacity:0;transform:translateY(6px) scale(.8)}20%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+`;document.head.appendChild(st)})();
+
+
+/* ---------- v69: mystic stones from mythic+ salvage, more mythic/primal variety ---------- */
+MYTHIC.push(
+ {n:'용왕의 삼지창',slot:'w',st:{atk:2.2,crit:0.2,chain:0.5},fx:'',d:'공격이 50% 확률로 다른 적에게 튄다'},
+ {n:'피의 군주의 낫',slot:'w',st:{atk:2.4,ls:0.3,crit:0.15},fx:'',d:'흡혈 30% · 치명타 +15%'},
+ {n:'심연의 마도서',slot:'w',st:{mag:2.6,burn:0.5,chain:0.3},fx:'',d:'마법이 50% 확률로 불태우고 30% 확률로 튄다'},
+ {n:'저승의 활',slot:'w',st:{atk:2.1,crit:0.45,pierce:0.4},fx:'',d:'치명타 +45% · 방어 40% 무시'},
+ {n:'천둥신의 망치',slot:'w',st:{atk:2.3,mag:0.6,chain:0.7},fx:'',d:'공격이 70% 확률로 번개처럼 튄다'},
+ {n:'불사조의 깃옷',slot:'a',st:{hp:6,def:1.2},fx:'regen',d:'매 턴 체력 재생'},
+ {n:'고요한 바다의 로브',slot:'a',st:{hp:6,def:1,mag:0.8},fx:'calm',d:'스트레스를 덜 받는다 · 마력 증가'},
+ {n:'거인의 판금',slot:'a',st:{hp:10,def:2.2},fx:'',d:'압도적인 체력과 방어'},
+ {n:'그림자 망토',slot:'a',st:{hp:5,def:1,spd:3,crit:0.25},fx:'',d:'속도 +3 · 치명타 +25%'},
+ {n:'용의 심장 목걸이',slot:'r',st:{atk:1,mag:1,hp:3,burn:0.6},fx:'',d:'공격이 60% 확률로 불태운다'},
+ {n:'광전사의 인장',slot:'r',st:{atk:1.5,ls:0.2,crit:0.2},fx:'',d:'흡혈 20% · 치명타 +20%'},
+ {n:'별빛 반지',slot:'r',st:{mag:1.4,crit:0.3,spd:2},fx:'cdr',d:'재사용 대기 2배 빠름 · 치명타 +30%'});
+PRIMAL.push(
+ {n:'세계수의 지팡이',slot:'w',st:{mag:3.4,hp:3,chain:0.4},fx:'regen',d:'매 턴 체력 재생 · 마법이 40% 확률로 튄다'},
+ {n:'천벌의 창 · 롱기누스',slot:'w',st:{atk:3.2,crit:0.35,pierce:1},fx:'',d:'방어 100% 무시 · 치명타 +35%'},
+ {n:'혼돈의 낫',slot:'w',st:{atk:3,mag:1.5,ls:0.25,chain:0.5},fx:'',d:'흡혈 25% · 공격이 50% 확률로 튄다'},
+ {n:'용신의 비늘갑옷',slot:'a',st:{hp:16,def:2.8},fx:'sun',d:'언제나 밝게 싸운다 · 압도적 체력'},
+ {n:'시간을 멈춘 모래시계',slot:'r',st:{atk:1,mag:1,spd:8,crit:0.25},fx:'cdr',d:'재사용 대기 2배 빠름 · 속도 +8'},
+ {n:'신의 주사위',slot:'r',st:{atk:1.8,mag:1.8,crit:0.5},fx:'dice',d:'운명의 일격 확률 ×5 · 치명타 +50%'});
+const smatOf=it=>it.g>=7?R(3,5):it.g===6?R(1,2):0;
+function smatGain(it,L){const n=smatOf(it);if(!n)return 0;S.smat=(S.smat||0)+n;L&&L.push(`🔮 신비 마석 +${n}`);try{fxEl(`<b>🔮 신비 마석 +${n}</b>`,'fx-banner combo',null,1300,{'--c':'#c08aff'})}catch(e){}return n}
+(function(){
+ const _sv=A.salv;A.salv=function(id){const it=S.inv.find(x=>x.id===+id);if(it)smatGain(it);return _sv.apply(this,arguments)};
+ const _sl=salvLine;salvLine=function(it,L,why){_sl.apply(this,arguments);if(it&&it.g>=6)smatGain(it,L)};
+ A.mystic=function(id){const f=findItem(+id);if(!f)return;const it=f.it;const up=it.up||0;if(up>=maxUp()||(S.smat||0)<1)return;S.smat--;
+  if(!it.base)applyUp(it);const h=f.h;const b=h?power(h):0;const r=Math.random();let k=r<0.03?5:r<0.13?3:r<0.4?2:1;k=Math.min(k,maxUp()-up);it.up=up+k;applyUp(it);
+  if(h)recalc(h);const a=h?power(h):0;const bk=S.modal&&(S.modal.type==='item'?{type:'item',id:S.modal.id}:S.modal.back)||null;
+  S.modal={type:'enh2',id:it.id,res:k>=2?'great':'ok',b,a,snap:null,hu:h?h.uid:null,back:bk,myst:k};LASTP=partyPow();save();render();
+  try{if(k>=3)fxJackpot(`신비 강화 +${k}!!`,`+${it.up} ${it.bn||it.n}`);else fxEl(`<b>🔮 +${k}</b>`,'fx-banner combo',null,1200,{'--c':'#c08aff'})}catch(e){}};
+ const _vm=vModal;vModal=function(){let h=_vm.apply(this,arguments);const M=S.modal;try{
+   if(M&&(M.type==='item'||M.type==='enh2')&&h&&h.endsWith('</div></div>')){const f=findItem(M.id);if(f&&(S.smat||0)>0||f&&M.type==='item'){const it=f.it,up=it.up||0,ok=(S.smat||0)>0&&up<maxUp();
+     const card=`<div class="card mystc"><div class="label">🔮 신비 마석 ${S.smat||0}개</div><button class="btn mystb" data-a="mystic" data-v="${it.id}" ${ok?'':'disabled'}>${up>=maxUp()?'최대 강화':'신비 강화 · 실패 없음 · +1~+5'}</button><div class="sm muted">+1 60% · +2 27% · +3 10% · +5 3% · 신화 이상 장비를 해체하면 얻어요</div></div>`;
+     h=h.slice(0,-12)+card+'</div></div>'}}
+   if(M&&M.type==='enh2'&&M.myst)h=h.replace(/<div class="enhres"([^>]*)>[^<]*<\/div>/,`<div class="enhres" style="color:#c08aff">신비 강화 +${M.myst}!</div>`)}catch(e){}return h};
+})();
+(function(){const st=document.createElement&&document.createElement('style');if(!st||!document.head)return;st.textContent=`
+.mystc{border-color:rgba(192,138,255,.45)!important;background:linear-gradient(rgba(60,30,90,.35),rgba(20,10,30,.3))!important}
+.mystb{width:100%;background:linear-gradient(#6a3aa0,#3a1a60)!important;border-color:#c08aff!important;color:#f0e0ff!important}
+.mystb:disabled{opacity:.45}
 `;document.head.appendChild(st)})();
 
 </script>
