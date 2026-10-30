@@ -5491,7 +5491,7 @@ BOSSES.push(
  {n:'네 팔의 군주',spr:'fourarm@2',hp:165,atk:16,def:6,spd:6,el:'dark',randEl:1},
  {n:'서큐버스 여왕',spr:'succubus@2',hp:140,atk:16,def:5,spd:7,el:'fire'});
 (function(){const add={dark:[16,21],forest:[17,18],water:[19],blood:[20,23],crystal:[22]};THEMES.forEach(t=>{if(t.bosses.length>1&&add[t.k])t.bosses.push(...add[t.k])})})();
-const GCROP={'isopod@3':[-5,110,-18],'barrel@3':[-5,110,-16],'goblin@3':[-38,132,-8],'angler@3':[-30,136,0],'tent':[-10,120,-6],'wyvern':[-12,124,2],'lamprey@3':[-30,130,0],'crab@3':[-10,120,0]};
+const GCROP={'isopod@3':[-5,110,-75],'barrel@3':[0,100,-70],'goblin@3':[-30,120,-40],'angler@3':[-20,120,-20],'tent':[0,100,-10],'wyvern':[-5,110,-20],'lamprey@3':[-20,120,-10],'crab@3':[0,100,-15],'queen':[5,90,-5],'golem_rock@3':[10,80,-5]};
 const gcrop=s=>{const c=GCROP[s];return c?` style="left:${c[0]}%;width:${c[1]}%;top:${c[2]}%"`:''};
 function giantBoss(){const B=S.battle;return B&&B.giant?B.en.find(e=>e.boss):null}
 (function(){
@@ -5515,31 +5515,30 @@ function giantBoss(){const B=S.battle;return B&&B.giant?B.en.find(e=>e.boss):nul
   const hit=B._ghp!=null&&b.hp<B._ghp;B._ghp=b.hp;const pct=Math.max(0,b.hp/b.maxhp*100);
   const layer=`<div class="gboss${b.enraged?' rage':''}${B.elunge===b.uid?' glunge':''}${hit?' ghit':''}${b.hp<=0?' gdead':''}"><div class="gimg"${gcrop(b.spr)}>${enemyImg(b.spr,b.el)}</div><div class="gvig"></div></div>`;
   const bar=`<div class="gbar"><div class="gname"><b>${b.n}</b><span>${b.enraged?'광폭화 · ':''}${fmtN(b.hp)}/${fmtN(b.maxhp)}</span></div><div class="gtrack"><i class="gfill" style="width:${pct}%"></i><i class="gmark"></i></div><div class="gnum num">${fmtN(b.hp)} / ${fmtN(b.maxhp)}</div></div>`;
-  return h.replace('<div class="stage2 boss">','<div class="stage2 boss giant">'+layer+bar)};
+  return h.replace('<div class="stage2 boss">','<div class="stage2 boss giant">'+bar+layer)};
 })();
 (function(){const st=document.createElement&&document.createElement('style');if(!st||!document.head)return;st.textContent=`
-.stage2.giant{min-height:min(118vw,560px);justify-content:space-between;overflow:hidden;border-color:rgba(160,40,30,.7);box-shadow:inset 0 0 40px rgba(120,0,0,.45)}
-.stage2.giant>.erow,.stage2.giant>.hrow2,.stage2.giant>.gbar{position:relative;z-index:2}
+.stage2.giant{overflow:hidden;padding-top:10px;border-color:rgba(160,40,30,.7);box-shadow:inset 0 0 40px rgba(120,0,0,.45)}
+.stage2.giant>.erow,.stage2.giant>.hrow2{position:relative;z-index:2}
 .stage2.giant .u.big{flex-basis:26%;max-width:110px}
-.stage2.giant>.erow{margin-top:auto}
 .gbar .gname b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-right:6px}
 .stage2.giant .u.big .art{opacity:0;height:48px;overflow:hidden}
 .stage2.giant .hrow2{padding-top:6px;background:linear-gradient(transparent,rgba(0,0,0,.55) 40%)}
-.gboss{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:10px}
-.gboss .gimg{position:absolute;left:-18%;width:136%;top:7%;transform-origin:50% 30%;animation:gbreath 3.2s ease-in-out infinite}
-.gboss .gimg svg{width:100%;height:auto;display:block;filter:drop-shadow(0 0 18px rgba(0,0,0,.9))}
-.gboss .gvig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,transparent 35%,rgba(0,0,0,.55) 80%),linear-gradient(transparent 55%,rgba(10,4,4,.75))}
+.gboss{position:relative;height:clamp(170px,50vw,230px);margin:-2px 0 -14px;z-index:1;pointer-events:none;overflow:hidden;border-radius:8px;background:radial-gradient(ellipse at 50% 40%,rgba(120,30,20,.35),rgba(0,0,0,.2) 70%)}
+.gboss .gimg{position:absolute;left:14%;width:72%;top:4%;transform-origin:50% 30%;animation:gbreath 3.2s ease-in-out infinite}
+.gboss .gimg svg{width:100%;height:auto;display:block;filter:drop-shadow(0 0 10px rgba(0,0,0,.8))}
+.gboss .gvig{position:absolute;inset:0;background:linear-gradient(transparent 70%,rgba(10,4,4,.85))}
 .gboss.rage .gimg svg{filter:drop-shadow(0 0 22px rgba(255,40,20,.8)) saturate(1.4) hue-rotate(-10deg)}
 .gboss.rage .gimg{animation-duration:1.4s}
-.gboss.rage .gvig{background:radial-gradient(ellipse at 50% 30%,transparent 30%,rgba(90,0,0,.55) 80%),linear-gradient(transparent 55%,rgba(20,0,0,.8))}
+.gboss.rage .gvig{background:linear-gradient(transparent 60%,rgba(60,0,0,.85))}
 .gboss.glunge .gimg{animation:glunge .7s ease-out}
 .gboss.ghit .gimg{animation:ghit .45s ease-out}
 .gboss.gdead .gimg{animation:gdie 1.6s ease-in forwards}
 @keyframes gbreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.025) translateY(-4px)}}
-@keyframes glunge{0%{transform:scale(1)}35%{transform:scale(1.14) translateY(14px)}100%{transform:scale(1)}}
+@keyframes glunge{0%{transform:scale(1)}35%{transform:scale(1.1) translateY(10px)}100%{transform:scale(1)}}
 @keyframes ghit{0%{transform:translateX(0);filter:brightness(2.6)}25%{transform:translateX(-8px)}50%{transform:translateX(6px);filter:brightness(1.4)}100%{transform:translateX(0);filter:none}}
 @keyframes gdie{to{transform:translateY(40px) scale(.94);opacity:0;filter:grayscale(1) brightness(.4)}}
-.gbar{margin:-12px 0 0;padding:3px 6px 4px;border-radius:6px;background:linear-gradient(rgba(10,4,4,.8),rgba(10,4,4,.35));border:1px solid rgba(200,60,40,.55)}
+.gbar{position:relative;z-index:3;margin:-4px 0 4px;padding:3px 6px 4px;border-radius:6px;background:linear-gradient(rgba(10,4,4,.8),rgba(10,4,4,.35));border:1px solid rgba(200,60,40,.55)}
 .gbar .gname{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:#ffd8c8;letter-spacing:.5px}
 .gbar .gname b{text-shadow:0 0 8px rgba(255,60,30,.7)}.gbar .gname span{color:#ffb09a;font-weight:600;font-size:11px}
 .gbar .gtrack{position:relative;height:8px;margin-top:2px;border-radius:6px;background:#1a0606;border:1px solid #5a1a14;overflow:hidden}
