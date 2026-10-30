@@ -5553,9 +5553,9 @@ function giantBoss(){const B=S.battle;return B&&B.giant?B.en.find(e=>e.boss):nul
 const CLASH={el:null,tm:[],endAt:0,
  art(uid){try{const n=document.querySelector(`[data-uid="${uid}"] .art`);return n?n.innerHTML:''}catch(e){return ''}},
  clear(){this.tm.forEach(clearTimeout);this.tm=[];if(this.el){this.el.remove();this.el=null}},
- dur(){return SPD>=3?560:SPD===2?720:(S.auto?760:950)},
+ dur(){return SPD>=3?0:SPD===2?(S.auto?420:500):(S.auto?720:900)},
  play(o){// o:{a:uid,ts:[uid],rev:bool,magic:bool,c:color,aoe:bool}
-  try{if(FXQ===0||!document.body||!o.a||!o.ts.length)return null;this.clear();const D=this.dur();
+  try{if(FXQ===0||!document.body||!o.a||!o.ts.length)return null;this.clear();const D=this.dur();if(!D)return null;
    const aArt=this.art(o.a);const tArts=o.ts.slice(0,3).map(u=>this.art(u)).filter(Boolean);if(!aArt||!tArts.length)return null;
    const d=document.createElement('div');d.className='clash'+(o.rev?' rev':'')+(o.magic?' mag':'')+(o.aoe?' aoe':'');d.style.setProperty('--cd',D+'ms');d.style.setProperty('--cc',o.c||'#fff');
    const parts=Array.from({length:FXQ>=2?16:10},(_,i)=>{const a=(Math.random()*1.2-0.6)+(o.rev?Math.PI:0),r=40+Math.random()*90;return `<i style="--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r-20}px;--s:${3+Math.random()*5}px"></i>`}).join('');
