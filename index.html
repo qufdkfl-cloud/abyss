@@ -5743,5 +5743,19 @@ function smatGain(it,L){const n=smatOf(it);if(!n)return 0;S.smat=(S.smat||0)+n;L
 .mystb:disabled{opacity:.45}
 `;document.head.appendChild(st)})();
 
+
+/* ---------- v70: stress matters ---------- */
+const stressTier=h=>!h||h.vir?0:h.stress>=100?3:h.stress>=75?2:h.stress>=45?1:0;
+(function(){
+ const _as=addStress;addStress=function(h,v,silent){if(v>0&&S.battle&&S.floor>=3)v=v*1.25;return _as.call(this,h,v,silent)};
+ const _c=calc;calc=function(a,d,sk){const r=_c.apply(this,arguments);try{if(isH(a)&&r&&r.d>0){const t=stressTier(a);
+   if(t>=2&&Math.random()<(t>=3?0.12:0.08)){r.d=0;r.crit=false;float(a,'손이 떨린다…','dot');log(`${a.nm}의 손이 떨려 공격이 빗나갔다`);return r}
+   if(t>=1)r.d=Math.max(1,Math.round(r.d*[1,0.92,0.82,0.72][t]))}}catch(e){}return r};
+ const _ad=applyDmg;applyDmg=function(u,r){try{if(isH(u)&&r&&r.src!=='dot'){const t=stressTier(u);if(t>=2)r={...r,d:Math.round(r.d*(t>=3?1.15:1.08))}}}catch(e){}
+  const hp0=u.hp;const out=_ad.call(this,u,r);
+  try{if(isH(u)&&S.battle&&S.floor>=3&&r&&r.src!=='dot'&&!u.dead){const lost=hp0-u.hp;if(lost>=u.maxhp*0.25||r.crit)addStress(u,r.crit?6:4,true)}}catch(e){}return out};
+ const _sc=stChips;stChips=function(u){const c=_sc(u);try{if(isH(u)){const t=stressTier(u);if(t===1)c.push('불안(피해-8%)');else if(t===2)c.push('공황(피해-18%·떨림)');else if(t===3)c.push('붕괴 직전')}}catch(e){}return c};
+})();
+
 </script>
 </body></html>
