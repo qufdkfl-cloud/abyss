@@ -5548,5 +5548,80 @@ function giantBoss(){const B=S.battle;return B&&B.giant?B.en.find(e=>e.boss):nul
 .gboss-banner b{font-size:30px!important}
 `;document.head.appendChild(st)})();
 
+
+/* ---------- v66: clash cinematic — weighty hits ---------- */
+const CLASH={el:null,tm:[],endAt:0,
+ art(uid){try{const n=document.querySelector(`[data-uid="${uid}"] .art`);return n?n.innerHTML:''}catch(e){return ''}},
+ clear(){this.tm.forEach(clearTimeout);this.tm=[];if(this.el){this.el.remove();this.el=null}},
+ dur(){return SPD>=3?560:SPD===2?720:(S.auto?760:950)},
+ play(o){// o:{a:uid,ts:[uid],rev:bool,magic:bool,c:color,aoe:bool}
+  try{if(FXQ===0||!document.body||!o.a||!o.ts.length)return null;this.clear();const D=this.dur();
+   const aArt=this.art(o.a);const tArts=o.ts.slice(0,3).map(u=>this.art(u)).filter(Boolean);if(!aArt||!tArts.length)return null;
+   const d=document.createElement('div');d.className='clash'+(o.rev?' rev':'')+(o.magic?' mag':'')+(o.aoe?' aoe':'');d.style.setProperty('--cd',D+'ms');d.style.setProperty('--cc',o.c||'#fff');
+   const parts=Array.from({length:FXQ>=2?16:10},(_,i)=>{const a=(Math.random()*1.2-0.6)+(o.rev?Math.PI:0),r=40+Math.random()*90;return `<i style="--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r-20}px;--s:${3+Math.random()*5}px"></i>`}).join('');
+   d.innerHTML=`<div class="cbg"></div><div class="cstage"><div class="cA"><div class="cart">${aArt}</div></div><div class="cT">${tArts.map(t=>`<div class="cart">${t}</div>`).join('')}</div>${o.magic?'<div class="cbolt"></div>':''}<div class="cslash"></div><div class="cflash"></div><div class="cpart">${parts}</div><div class="cdmg"></div></div>`;
+   document.body.appendChild(d);this.el=d;this.endAt=Date.now()+D;this.tm.push(setTimeout(()=>this.clear(),D+40));return d}catch(e){return null}},
+ dmg(d,v,crit,kill){if(!d)return;const n=d.querySelector('.cdmg');if(!n)return;if(v<=0){n.innerHTML='<b class="miss">빗나감</b>';return}
+  n.innerHTML=`${crit?'<small>치명타!</small>':''}<b>${fmtN(v)}</b>${kill?'<em>처치!</em>':''}`;if(crit)d.classList.add('crit');if(kill)d.classList.add('kill')}};
+(function(){
+ const _nt=nextTurn;nextTurn=function(){const left=CLASH.endAt-Date.now()-140;if(left>0&&S.battle){setTimeout(()=>nextTurn(),left);return}return _nt.apply(this,arguments)};
+ const hpOf=uids=>uids.map(u=>{const x=U(u);return x?x.hp:0});
+ const _ds=doSkill;doSkill=function(uid,sid,tu,forced){const sk=SK[sid];let d=null,ts=[],before=[],f0=FLOATS.length;
+  try{const B=S.battle;if(B&&sk&&sk.k==='dmg'){ts=sk.t==='allEnemies'?B.en.filter(e=>e.hp>0).map(e=>e.uid):(tu?[tu]:[]);if(ts.length){before=hpOf(ts);const h=U(uid);
+    d=CLASH.play({a:uid,ts,rev:false,magic:sk.s==='mag',aoe:sk.t==='allEnemies',c:(typeof SKC!=='undefined'&&SKC[sid])||ELG[h&&h.el]||'#fff'})}}}catch(e){}
+  const r=_ds.apply(this,arguments);
+  try{if(d){const after=hpOf(ts);const tot=before.reduce((a,b,i)=>a+Math.max(0,b-after[i]),0);const crit=FLOATS.slice(f0).some(x=>x.kind==='crit');const kill=after.some((v,i)=>v<=0&&before[i]>0);CLASH.dmg(d,tot,crit,kill)}}catch(e){}
+  return r};
+ const _ea=enemyAct;enemyAct=function(uid){const B=S.battle;const e=U(uid);let hs=[],before=[],f0=FLOATS.length,d=null;
+  try{if(B&&e&&e.hp>0){hs=S.heroes.filter(h=>!h.dead).map(h=>h.uid);before=hpOf(hs)}}catch(er){}
+  CLASH._pend={e:uid};const r=_ea.apply(this,arguments);
+  try{const P=CLASH._pend;CLASH._pend=null;if(P&&P.d){const after=hpOf(hs);let tot=0,kill=false;hs.forEach((u,i)=>{const dl=Math.max(0,before[i]-after[i]);tot+=dl;if(after[i]<=0&&before[i]>0)kill=true});
+    const crit=FLOATS.slice(f0).some(x=>x.kind==='crit'||x.kind==='big');CLASH.dmg(P.d,tot,crit,kill)}}catch(er){}return r};
+ const _ef=enemyFX;enemyFX=function(e,mode,tgt,pool,hs){try{if(CLASH._pend&&['hit','aoe','exec','stun','dot'].includes(mode)){const ts=mode==='aoe'?(hs||[]).map(h=>h.uid):tgt?[tgt.uid]:[];
+   if(ts.length)CLASH._pend.d=CLASH.play({a:e.uid,ts,rev:true,magic:!!e.rng&&mode!=='exec',aoe:mode==='aoe',c:e.boss?'#ff3a2a':(ELG[e.el]||'#ff6a6a')})}}catch(er){}return _ef.apply(this,arguments)};
+})();
+(function(){const st=document.createElement&&document.createElement('style');if(!st||!document.head)return;st.textContent=`
+.clash{position:fixed;inset:0;z-index:60;pointer-events:none;--cd:950ms}
+.clash .cbg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(30,10,8,.55),rgba(0,0,0,.88) 75%);animation:cbg var(--cd) ease forwards}
+.clash .cstage{position:absolute;left:0;right:0;top:14%;height:min(56vh,460px);animation:cshake var(--cd) linear}
+.clash .cA,.clash .cT{position:absolute;bottom:0;top:8%;width:46%;display:flex;align-items:flex-end;justify-content:center}
+.clash .cA{left:2%;animation:cA var(--cd) cubic-bezier(.3,.6,.2,1) forwards}
+.clash .cT{right:2%;animation:cT var(--cd) cubic-bezier(.3,.6,.2,1) forwards;gap:2px}
+.clash.rev .cA{left:auto;right:2%;animation-name:cAr}.clash.rev .cT{right:auto;left:2%;animation-name:cTr}
+.clash .cart{height:100%;display:flex;align-items:flex-end;justify-content:center}.clash .cT .cart{flex:1 1 0;min-width:0}
+.clash.aoe .cT{width:54%}.clash.aoe .cT .cart{height:62%}.clash .cart svg,.clash .cart img{height:100%;width:auto;max-width:100%;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.9))}
+.clash .cA .cart{transform-origin:50% 100%}
+.clash .cslash{position:absolute;right:6%;top:34%;width:62%;height:16px;border-radius:50%;background:linear-gradient(90deg,transparent,#fff 45%,var(--cc) 70%,transparent);box-shadow:0 0 24px var(--cc),0 0 6px #fff;transform:rotate(-28deg) scaleX(0);transform-origin:0 50%;opacity:0;animation:cslash var(--cd) ease-out forwards}
+.clash.rev .cslash{right:auto;left:8%;transform-origin:100% 50%;animation-name:cslashR}
+.clash.mag .cslash{display:none}
+.clash .cbolt{position:absolute;left:30%;top:42%;width:44px;height:44px;border-radius:50%;background:radial-gradient(#fff,var(--cc) 45%,transparent 70%);box-shadow:0 0 40px 12px var(--cc);opacity:0;animation:cbolt var(--cd) cubic-bezier(.5,0,.8,.6) forwards}
+.clash.rev .cbolt{animation-name:cboltR;left:auto;right:30%}
+.clash .cflash{position:absolute;inset:-20vh -10vw;background:radial-gradient(circle at 72% 50%,#fff,var(--cc) 14%,transparent 38%);mix-blend-mode:screen;opacity:0;animation:cflash var(--cd) ease-out forwards}
+.clash.rev .cflash{background:radial-gradient(circle at 28% 50%,#fff,var(--cc) 14%,transparent 38%)}
+.clash .cpart{position:absolute;right:22%;top:45%}.clash.rev .cpart{right:auto;left:22%}
+.clash .cpart i{position:absolute;width:var(--s);height:var(--s);border-radius:50%;background:var(--cc);box-shadow:0 0 6px var(--cc);opacity:0;animation:cpart var(--cd) ease-out forwards}
+.clash:not(.mag) .cpart i{background:#b0101a;box-shadow:0 0 4px #600}
+.clash .cdmg{position:absolute;right:14%;top:0;z-index:3;text-align:center;font-weight:900;opacity:0;animation:cdmg var(--cd) cubic-bezier(.2,1.6,.4,1) forwards;color:#fff;text-shadow:0 0 2px #000,0 3px 0 #300,0 0 14px var(--cc)}
+.clash.rev .cdmg{right:auto;left:16%;color:#ffd0c8}
+.clash .cdmg b{display:block;font-size:46px;line-height:1;letter-spacing:-1px}.clash .cdmg small{display:block;font-size:18px;color:#ffd84a}.clash .cdmg em{display:block;font-style:normal;font-size:18px;color:#ff5a3a}
+.clash .cdmg .miss{font-size:28px;color:#aaa}
+.clash.crit .cdmg b{font-size:62px;color:#ffe060}.clash.crit .cflash{animation-name:cflashC}
+@keyframes cbg{0%{opacity:0}12%{opacity:1}82%{opacity:1}100%{opacity:0}}
+@keyframes cA{0%{transform:translateX(-40vw) scale(1.25);opacity:0}16%{transform:translateX(-4vw) scale(1.3);opacity:1}34%{transform:translateX(-8vw) scale(1.32)}42%{transform:translateX(16vw) scale(1.42)}60%{transform:translateX(10vw) scale(1.38)}84%{opacity:1}100%{transform:translateX(4vw) scale(1.35);opacity:0}}
+@keyframes cT{0%{transform:translateX(40vw) scale(1.15);opacity:0}16%{transform:translateX(4vw) scale(1.2);opacity:1}40%{transform:translateX(2vw) scale(1.2);filter:none}43%{transform:translateX(6vw) rotate(7deg) scale(1.24);filter:brightness(3) saturate(0)}50%{transform:translateX(5vw) rotate(5deg) scale(1.22);filter:brightness(.8) sepia(1) hue-rotate(-40deg) saturate(5)}68%{transform:translateX(3vw) rotate(1deg) scale(1.2);filter:none}84%{opacity:1}100%{transform:translateX(3vw) scale(1.2);opacity:0}}
+@keyframes cAr{0%{transform:translateX(40vw) scale(1.25);opacity:0}16%{transform:translateX(4vw) scale(1.3);opacity:1}34%{transform:translateX(8vw) scale(1.32)}42%{transform:translateX(-16vw) scale(1.42)}60%{transform:translateX(-10vw) scale(1.38)}84%{opacity:1}100%{transform:translateX(-4vw) scale(1.35);opacity:0}}
+@keyframes cTr{0%{transform:translateX(-40vw) scale(1.15);opacity:0}16%{transform:translateX(-4vw) scale(1.2);opacity:1}40%{transform:translateX(-2vw) scale(1.2);filter:none}43%{transform:translateX(-6vw) rotate(-7deg) scale(1.24);filter:brightness(3) saturate(0)}50%{transform:translateX(-5vw) rotate(-5deg) scale(1.22);filter:brightness(.8) sepia(1) hue-rotate(-40deg) saturate(5)}68%{transform:translateX(-3vw) rotate(-1deg) scale(1.2);filter:none}84%{opacity:1}100%{transform:translateX(-3vw) scale(1.2);opacity:0}}
+@keyframes cslash{0%,38%{opacity:0;transform:rotate(-28deg) scaleX(0)}42%{opacity:1;transform:rotate(-28deg) scaleX(1)}58%{opacity:0;transform:rotate(-28deg) scaleX(1.1) translateY(6px)}100%{opacity:0}}
+@keyframes cslashR{0%,38%{opacity:0;transform:rotate(28deg) scaleX(0)}42%{opacity:1;transform:rotate(28deg) scaleX(1)}58%{opacity:0;transform:rotate(28deg) scaleX(1.1) translateY(6px)}100%{opacity:0}}
+@keyframes cbolt{0%,18%{opacity:0;transform:translateX(0) scale(.4)}22%{opacity:1}41%{opacity:1;transform:translateX(38vw) scale(1.3)}45%{opacity:0;transform:translateX(40vw) scale(2.4)}100%{opacity:0}}
+@keyframes cboltR{0%,18%{opacity:0;transform:translateX(0) scale(.4)}22%{opacity:1}41%{opacity:1;transform:translateX(-38vw) scale(1.3)}45%{opacity:0;transform:translateX(-40vw) scale(2.4)}100%{opacity:0}}
+@keyframes cflash{0%,40%{opacity:0}43%{opacity:.7}58%{opacity:0}100%{opacity:0}}
+@keyframes cflashC{0%,40%{opacity:0}43%{opacity:1}48%{opacity:.3}52%{opacity:.8}70%{opacity:0}100%{opacity:0}}
+@keyframes cpart{0%,41%{opacity:0;transform:translate(0,0)}44%{opacity:1}80%{opacity:.8;transform:translate(var(--dx),calc(var(--dy) + 30px))}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 60px))}}
+@keyframes cdmg{0%,42%{opacity:0;transform:scale(2.6)}48%{opacity:1;transform:scale(1)}82%{opacity:1;transform:translateY(-14px)}100%{opacity:0;transform:translateY(-26px)}}
+@keyframes cshake{0%,41%{transform:none}43%{transform:translate(-10px,6px)}45%{transform:translate(9px,-5px)}47%{transform:translate(-6px,3px)}49%{transform:translate(4px,0)}52%,100%{transform:none}}
+.lowfx .clash{display:none}
+`;document.head.appendChild(st)})();
+
 </script>
 </body></html>
