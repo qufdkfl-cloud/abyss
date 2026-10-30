@@ -3010,7 +3010,7 @@ function doFusion(){const [a,b]=(S.fuseSel||[]).map(U);if(!a||!b||S.gold<fuseCos
   else if(r<0.82){h=base(Math.min(5,Math.max(a.rar||1,b.rar||1)+(Math.random()<0.3?1:0)));title='합성 성공';L.push('두 영웅의 힘이 하나가 되었다.')}
   else{h=base(0);const k=pick(['bloodpact','madness','frail']);h.tr=[k];h.stress=60;title='합성 실패…';jack=-1;L.push(`뒤틀린 존재가 태어났다… [저주] ${TRAITS[k].n}`)}
   recalc(h,true);h.hp=h.maxhp;addHero(h);L.unshift(`${a.nm} + ${b.nm} → <b>${h.nm}</b> (${hname(h)})`);if(h.tr&&h.tr.length&&jack>=0)L.push('계승 특성: '+h.tr.map(k=>TRAITS[k].n).join(', '));
-  S.page=null;S.modal={type:'msg',title,lines:L,spr:h.uid,uq:jack>0,warn:jack<0};save();render();try{if(jack>0)fxJackpot(title,h.nm);else if(jack<0)fxBust(title,'')}catch(e){}}
+  S.modal={type:'msg',title,lines:L,spr:h.uid,uq:jack>0,warn:jack<0};save();render();try{if(jack>0)fxJackpot(title,h.nm);else if(jack<0)fxBust(title,'')}catch(e){}}
 // ===== 장비 재련 =====
 const reforgeCost=it=>({m:2+it.g*2,g:15*S.floor*(1+it.g)});
 function doReforge(id){const f=findItem(+id);if(!f)return;const it=f.it;const c=reforgeCost(it);if((S.mats||0)<c.m||S.gold<c.g)return;S.mats-=c.m;S.gold-=c.g;const r=Math.random();let title,L=[],jack=0;
@@ -3173,7 +3173,7 @@ function doEnh(id){const f=findItem(+id);if(!f)return;const it=f.it;const up=it.
   if(Math.random()<ENH[up]){if(Math.random()<0.1&&up+2<=maxUp()){it.up=up+2;res='great'}else{it.up=up+1;res='ok'}}
   else if(up>=10&&Math.random()<0.15){res='boom'}else if(up>=5){it.up=up-1;res='down'}else res='fail';
   let snap=null;if(res==='boom'){snap={n:it.n,art:itemArt(it),up};if(h){h.eq[it.slot]=null}else S.inv=S.inv.filter(x=>x!==it)}else applyUp(it);
-  if(h)recalc(h);const a=h?power(h):0;S.modal={type:'enh2',id:it.id,res,b,a,snap,hu:h?h.uid:null};LASTP=partyPow();save();render();
+  if(h)recalc(h);const a=h?power(h):0;const _bk=S.modal&&(S.modal.type==='item'?{type:'item',id:S.modal.id}:S.modal.back)||null;S.modal={type:'enh2',id:it.id,res,b,a,snap,hu:h?h.uid:null,back:res==='boom'?null:_bk};LASTP=partyPow();save();render();
   try{if(res==='great')fxJackpot('대성공!!',`+${it.up} ${it.bn||it.n}`);else if(res==='boom')fxBust('파괴…',snap.n);else if(res==='ok'&&it.up>=7)fxEl(`<b>+${it.up}</b>`,'fx-banner combo',null,1100,{'--c':it.up>=10?'#ff7a2a':'#7af0ff'})}catch(e){}}
 function vEnh2(M){const f=M.snap?null:findItem(M.id);const it=f&&f.it;const up=it?it.up||0:0;const c=it?enhCost(it):null;
   const T={great:['대성공!!','#ff5ab0'],ok:['강화 성공!','#ffd86a'],fail:['강화 실패','#a39c90'],down:['실패… 한 단계 하락','#c9554b'],boom:['장비 파괴…','#ff3b4a']}[M.res];
@@ -5031,7 +5031,7 @@ const A={
  pact(k){S.pacts=S.pacts||[];S.pacts=S.pacts.includes(k)?S.pacts.filter(x=>x!==k):S.pacts.concat([k]);render()},
  fuseSel(u){S.fuseSel=S.fuseSel||[];S.fuseSel=S.fuseSel.includes(u)?S.fuseSel.filter(x=>x!==u):S.fuseSel.concat([u]).slice(-2);render()},
  fuse(){doFusion()},
- reforge(id){doReforge(id)},
+ reforge(id){const bk=S.modal&&S.modal.type==='item'?{type:'item',id:S.modal.id}:null;doReforge(id);if(bk&&S.modal&&S.modal.type==='msg'&&!S.modal.back){S.modal.back=bk;render()}},
  petSwap(v){if(+v&&S.petOffer)S.pet={k:S.petOffer,xp:0};S.petOffer=null;save();render()},
  rouSpin(){const M=S.modal;if(!M||M.type!=='roulette'||M.spin)return;const idx=rollGrade(ROU.map(r=>r.w));const seg=360/ROU.length;M.idx=idx;M.spin=1;M.to=360*6-(idx*seg+seg/2)+(Math.random()-.5)*seg*0.6;M.t0=Date.now();render();rouLoop();
    setTimeout(()=>{try{const r=document.querySelector('.rou2');if(r){r.classList.remove('spinning');r.classList.add('stopped')}}catch(e){}},4500);setTimeout(()=>A.rouDone(),5400)},
@@ -5101,7 +5101,7 @@ const A={
  inspect(u){const B=S.battle;if(!B)return;B.insp=B.insp===u?null:u;render()},
  scroll(k){if(!S.battle||S.modal||S.intro)return;if(useScroll(k))render()},
  skipIntro(){S.intro=null;render()},
- close(){S.modal=null;nextQueued()},
+ close(){const bk=S.modal&&S.modal.back;if(bk&&findItem(bk.id)){S.modal=bk;render();return}S.modal=null;nextQueued()},
  evo(i){const M=S.modal;const h=U(M.uid);S.evoQ.shift();if(!h){nextQueued();return}const opt=M.opts[+i];const old=hname(h);const ost=stageOf(h);const learned=applyEvo(h,opt);
    const L=[`${old} → <b>${hname(h)}</b> (${h.tier+1}/10단계)`,`${opt.n}: ${opt.d}`];if(stageOf(h)>ost)L.push('<b style="color:var(--brass)">모습이 완전히 바뀌었다!</b>');if(learned)L.push(`새 스킬: <b>${SK[learned].n}</b> · ${SK[learned].d}`);
    if(opt.tr)L.splice(1,1,`<b style="color:${TRR[TRAITS[opt.tr].r].c}">[${TRR[TRAITS[opt.tr].r].n}] ${TRAITS[opt.tr].n}</b> — ${TRAITS[opt.tr].d}`);
@@ -5128,7 +5128,7 @@ const A={
      {const w=addHero(h);if(w==='bench')L.push('대열이 가득 차 보관함으로 보냈다.');if(w!=='merge')L.push(`${h.nm} — <b>${hname(h)}</b>이 동료가 되었다.`)}S.modal={type:'msg',title:P.boss?'보스가 무릎을 꿇었다':'적이 동료가 되었다',uq:P.boss,spr:h.uid,lines:L};save();render();return}
    const g=R(8,15)*S.floor;S.gold+=g;live().forEach(h=>addStress(h,-8,true));S.modal={type:'msg',title:'처단',lines:[`목숨을 거두었다. 금화 ${g}, 전원 스트레스 -8`]};save();render()},
  useStone(uid){const h=U(uid);if(!h||S.screen==='battle')return;const s=S.stones||0;
-   if(h.tier<9){if(s<1)return;S.stones--;if(!S.evoQ.includes(h.uid))S.evoQ.unshift(h.uid);S.page=null;nextQueued();save();render();return}
+   if(h.tier<9){if(s<1)return;S.stones--;if(!S.evoQ.includes(h.uid))S.evoQ.unshift(h.uid);nextQueued();save();render();return}
    const c=awCost(h);if((h.aw||0)>=10||s<c)return;S.stones-=c;h.aw=(h.aw||0)+1;recalc(h);h.hp=h.maxhp;h.stress=Math.max(0,h.stress-30);
    S.modal={type:'msg',title:'각성!',uq:true,spr:h.uid,lines:[`${h.nm}이 각성${h.aw}단계에 올랐다!`,'모든 능력 +12%, 체력 완전 회복, 스트레스 -30',h.aw===3?'룬의 고리가 나타났다':h.aw===6?'빛나는 구체가 몸을 감싼다':h.aw===10?'<b style="color:var(--g5)">초월 — 신의 영역에 닿았다</b>':'']};save();render()},
  imprint(v){const [id,k]=v.split('|');const f=findItem(+id);if(!f||S.gold<impCost())return;S.gold-=impCost();const it=f.it;it.wel=k;it.bn=ELI[k]+' '+(it.bn||it.n).replace(/^(\+\d+ )?/,'').replace(/^(🌑|🔥|💧|🌪) /u,'');applyUp(it);if(f.h)recalc(f.h);save();render()},
