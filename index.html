@@ -5747,15 +5747,39 @@ function smatGain(it,L){const n=smatOf(it);if(!n)return 0;S.smat=(S.smat||0)+n;L
 /* ---------- v70: stress matters ---------- */
 const stressTier=h=>!h||h.vir?0:h.stress>=100?3:h.stress>=75?2:h.stress>=45?1:0;
 (function(){
- const _as=addStress;addStress=function(h,v,silent){if(v>0&&S.battle&&S.floor>=3)v=v*1.25;return _as.call(this,h,v,silent)};
+ const _as=addStress;addStress=function(h,v,silent){if(v>0&&S.battle&&S.floor>=3)v=v*1.3;return _as.call(this,h,v,silent)};
  const _c=calc;calc=function(a,d,sk){const r=_c.apply(this,arguments);try{if(isH(a)&&r&&r.d>0){const t=stressTier(a);
-   if(t>=2&&Math.random()<(t>=3?0.12:0.08)){r.d=0;r.crit=false;float(a,'손이 떨린다…','dot');log(`${a.nm}의 손이 떨려 공격이 빗나갔다`);return r}
-   if(t>=1)r.d=Math.max(1,Math.round(r.d*[1,0.92,0.82,0.72][t]))}}catch(e){}return r};
- const _ad=applyDmg;applyDmg=function(u,r){try{if(isH(u)&&r&&r.src!=='dot'){const t=stressTier(u);if(t>=2)r={...r,d:Math.round(r.d*(t>=3?1.15:1.08))}}}catch(e){}
+   if(t>=2&&Math.random()<(t>=3?0.16:0.11)){r.d=0;r.crit=false;float(a,'손이 떨린다…','dot');log(`${a.nm}의 손이 떨려 공격이 빗나갔다`);return r}
+   if(t>=1)r.d=Math.max(1,Math.round(r.d*[1,0.88,0.76,0.64][t]))}}catch(e){}return r};
+ const _ad=applyDmg;applyDmg=function(u,r){try{if(isH(u)&&r&&r.src!=='dot'){const t=stressTier(u);if(t>=2)r={...r,d:Math.round(r.d*(t>=3?1.22:1.12))}}}catch(e){}
   const hp0=u.hp;const out=_ad.call(this,u,r);
   try{if(isH(u)&&S.battle&&S.floor>=3&&r&&r.src!=='dot'&&!u.dead){const lost=hp0-u.hp;if(lost>=u.maxhp*0.25||r.crit)addStress(u,r.crit?6:4,true)}}catch(e){}return out};
- const _sc=stChips;stChips=function(u){const c=_sc(u);try{if(isH(u)){const t=stressTier(u);if(t===1)c.push('불안(피해-8%)');else if(t===2)c.push('공황(피해-18%·떨림)');else if(t===3)c.push('붕괴 직전')}}catch(e){}return c};
+ const _sc=stChips;stChips=function(u){const c=_sc(u);try{if(isH(u)){const t=stressTier(u);if(t===1)c.push('불안(피해-12%)');else if(t===2)c.push('공황(피해-24%·떨림)');else if(t===3)c.push('붕괴 직전')}}catch(e){}return c};
 })();
+
+
+/* ---------- v71: torch matters + visible darkness; stronger stress ---------- */
+LIGHT[0].d='적 피해 +35% · 아군 피해 -15% · 예고 안 보임 · 라운드마다 스트레스 +5 · 보상 +70%';
+LIGHT[1].d='적 피해 +15% · 아군 피해 -6% · 목표 안 보임 · 라운드마다 스트레스 +2 · 보상 +30%';
+LIGHT[3].d='아군 피해 +10% · 치명타 +5% · 라운드마다 스트레스 -2 · 기습 없음';
+(function(){
+ const _c=calc;calc=function(a,d,sk){const r=_c.apply(this,arguments);try{if(isH(a)&&r&&r.d>0)r.d=Math.max(1,Math.round(r.d*[0.85,0.94,1,1.1][lightLv()]))}catch(e){}return r};
+ const _nr=newRound;newRound=function(){const B=S.battle;const first=B&&!B.round;const r=_nr.apply(this,arguments);
+  try{if(S.battle&&S.battle.round>1){const L=lightLv();if(L===0)live().forEach(h=>addStress(h,3,true));else if(L===1)live().forEach(h=>addStress(h,2,true));else if(L===3)live().forEach(h=>addStress(h,-2,true))}
+   if(S.battle&&first&&lightLv()===0){live().forEach(h=>addStress(h,6,true));log('<b style="color:#b070ff">칠흑 속에서 무언가가 속삭인다…</b> 전원 스트레스 상승')}}catch(e){}return r};
+ const _r=render;render=function(){const out=_r.apply(this,arguments);try{if(!document.body)return out;let el=document.getElementById('torchfx');
+   const on=(S.screen==='battle'||S.screen==='dungeon')&&!S.page;if(!el){el=document.createElement('div');el.id='torchfx';document.body.appendChild(el)}
+   const t=Math.max(0,Math.min(100,S.torch||0));const dk=on?(0.08+0.6*Math.pow(1-t/100,1.3)):0;const warm=on?0.04+0.14*(t/100):0;const rad=on?(30+42*(t/100)):60;
+   el.style.cssText=`--tdk:${dk.toFixed(3)};--tw:${warm.toFixed(3)};--tr:${rad.toFixed(0)}%`;el.className='torchfx'+(on?' on':'')+(on&&t<15?' pitch':'')}catch(e){}return out};
+ const _as=addStress;addStress=function(h,v,silent){if(v>0&&S.battle&&S.floor>=3)v=v*1.12;return _as.call(this,h,v,silent)};
+})();
+(function(){const st=document.createElement&&document.createElement('style');if(!st||!document.head)return;st.textContent=`
+#torchfx{position:fixed;inset:0;pointer-events:none;z-index:41;opacity:0;transition:opacity .6s,background .8s}
+#torchfx.on{opacity:1;background:radial-gradient(ellipse var(--tr) calc(var(--tr) * .8) at 50% 42%,rgba(255,150,60,var(--tw)) 0%,rgba(0,0,0,0) 55%,rgba(0,0,0,var(--tdk)) 100%);animation:tflick 2.8s ease-in-out infinite}
+#torchfx.pitch{background:radial-gradient(ellipse var(--tr) calc(var(--tr) * .8) at 50% 42%,rgba(90,40,140,.06) 0%,rgba(0,0,0,0) 45%,rgba(4,0,10,var(--tdk)) 100%)}
+@keyframes tflick{0%,100%{opacity:1}18%{opacity:.93}22%{opacity:1}55%{opacity:.96}61%{opacity:1}}
+.lowfx #torchfx.on{animation:none}
+`;document.head.appendChild(st)})();
 
 </script>
 </body></html>
