@@ -4916,18 +4916,18 @@ const KS={kpy:[0,2,5,7,9],kgy:[0,3,5,7,10]};// 평조, 계면조
 const KR={
  explore:[
   {n:'달빛 아리랑',kr:1,sc:'kpy',bpm:46,jd:'gut',lead:'daegeum',layers:['drone','gayageum','janggu']},
-  {n:'계면 — 넋의 강',kr:1,sc:'kgy',bpm:42,jd:'gut',lead:'haegeum',layers:['drone','ajaeng','gayageum']},
+  {n:'계면 — 넋의 강',kr:1,sc:'kgy',bpm:42,jd:'gut',lead:'daegeum',layers:['drone','ajaeng','gayageum']},
   {n:'산사의 밤',kr:1,sc:'kpy',bpm:38,jd:'none',lead:'daegeum',layers:['drone','temple','gayageum']},
   {n:'한(恨)',kr:1,sc:'kgy',bpm:40,jd:'gut',lead:'gayageum',layers:['drone','ajaeng','haegeum']}],
  inn:[
   {n:'주막의 노랫가락',kr:1,sc:'kpy',bpm:60,jd:'gut',lead:'gayageum',layers:['drone','janggu','haegeum','fire']},
-  {n:'장터의 저녁',kr:1,sc:'kpy',bpm:66,jd:'jajin',lead:'haegeum',layers:['janggu','gayageum','fire']}],
+  {n:'장터의 저녁',kr:1,sc:'kpy',bpm:66,jd:'jajin',lead:'gayageum',layers:['janggu','gayageum','fire']}],
  battle:[
-  {n:'자진모리 — 칼춤',kr:1,sc:'kgy',bpm:96,jd:'jajin',lead:'haegeum',layers:['janggu','buk','kkwaeng','gayageum','ajaeng']},
+  {n:'자진모리 — 칼춤',kr:1,sc:'kgy',bpm:96,jd:'jajin',lead:'gayageum',layers:['janggu','buk','kkwaeng','gayageum','ajaeng']},
   {n:'사물놀이 — 귀신 쫓기',kr:1,sc:'kgy',bpm:104,jd:'hwi',lead:'daegeum',layers:['janggu','buk','kkwaeng','jing']},
   {n:'무당의 칼',kr:1,sc:'kgy',bpm:100,jd:'jajin',lead:'daegeum',layers:['janggu','buk','jing','gayageum']}],
  boss:[
-  {n:'휘모리 — 저승사자',kr:1,sc:'kgy',bpm:116,jd:'hwi',lead:'haegeum',layers:['janggu','buk','kkwaeng','jing','ajaeng','gayageum']},
+  {n:'휘모리 — 저승사자',kr:1,sc:'kgy',bpm:116,jd:'hwi',lead:'gayageum',layers:['janggu','buk','kkwaeng','jing','ajaeng','gayageum']},
   {n:'굿판의 악귀',kr:1,sc:'kgy',bpm:108,jd:'jajin',lead:'daegeum',layers:['janggu','buk','kkwaeng','jing','ajaeng']}]};
 Object.values(KR).forEach(L=>L.forEach(x=>{x.prog=[0,0,0,0];x.cl=1}));
 const JD={
@@ -4958,13 +4958,13 @@ Object.assign(MU,{
   if(orn==='shake'){const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=5.5;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(45,t+0.45);vb.connect(vg);vg.connect(o1.detune);vg.connect(o2.detune);vb.start(t);vb.stop(t+1.8)}
   o1.start(t);o2.start(t);o1.stop(t+1.8);o2.stop(t+1.8)},
  haegeum(f,t,dur,v,pan,from){const C=this.ctx;const o=C.createOscillator(),bp=C.createBiquadFilter(),lp=C.createBiquadFilter(),g=this.out(pan||0,1);o.type='sawtooth';
-  if(from&&Math.abs(from/f-1)<0.5){o.frequency.setValueAtTime(from,t);o.frequency.exponentialRampToValueAtTime(f,t+0.1)}else o.frequency.setValueAtTime(f,t);
-  bp.type='peaking';bp.frequency.value=1250;bp.Q.value=1.5;bp.gain.value=9;lp.type='lowpass';lp.frequency.value=3600;o.connect(bp);bp.connect(lp);lp.connect(g);
-  const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=6;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(dur>0.5?32:12,t+Math.min(0.5,dur*0.7));vb.connect(vg);vg.connect(o.detune);
-  this.env(g,t,0.05,v,dur,Math.min(0.25,dur*0.4));o.start(t);vb.start(t);o.stop(t+dur+0.1);vb.stop(t+dur+0.1)},
+  if(from&&Math.abs(from/f-1)<0.13&&dur>0.5){o.frequency.setValueAtTime(from,t);o.frequency.exponentialRampToValueAtTime(f,t+0.05)}else o.frequency.setValueAtTime(f,t);
+  bp.type='peaking';bp.frequency.value=500;bp.Q.value=0.8;bp.gain.value=3;lp.type='lowpass';lp.frequency.value=Math.min(1500,f*4);lp.Q.value=0.5;o.connect(bp);bp.connect(lp);lp.connect(g);
+  const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=6;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(dur>0.5?14:4,t+Math.min(0.6,dur*0.8));vb.connect(vg);vg.connect(o.detune);
+  this.env(g,t,0.1,v*0.7,dur,Math.min(0.25,dur*0.4));o.start(t);vb.start(t);o.stop(t+dur+0.1);vb.stop(t+dur+0.1)},
  daegeum(f,t,dur,v,pan){const C=this.ctx;this.flute(f,t,dur,v,pan);const o=C.createOscillator(),bp=C.createBiquadFilter(),g=this.out(pan||0,1);o.type='sawtooth';o.frequency.value=f;bp.type='bandpass';bp.frequency.value=f*3;bp.Q.value=9;o.connect(bp);bp.connect(g);
   const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=4.6;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(dur>0.6?28:8,t+Math.min(0.6,dur*0.7));vb.connect(vg);vg.connect(o.detune);
-  this.env(g,t,0.08,v*0.25,dur,Math.min(0.3,dur*0.5));o.start(t);vb.start(t);o.stop(t+dur+0.1);vb.stop(t+dur+0.1)},
+  this.env(g,t,0.1,v*0.06,dur,Math.min(0.3,dur*0.5));o.start(t);vb.start(t);o.stop(t+dur+0.1);vb.stop(t+dur+0.1)},
  // --- composition ---
  krMot(key,N){const M=this.mots||(this.mots={});const k='kr'+key;if(M[k])return M[k];
   if(key==='A3'&&M.krA){M[k]=M.krA.map(b=>b.map(e=>({...e,d:e.d+1})));return M[k]}
