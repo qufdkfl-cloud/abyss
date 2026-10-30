@@ -4909,6 +4909,106 @@ Object.assign(MU,{
 });
 })();
 
+/* ---------- v63: Korean traditional music (gugak) ---------- */
+(function(){
+const pk2=a=>a[Math.floor(Math.random()*a.length)];
+const KS={kpy:[0,2,5,7,9],kgy:[0,3,5,7,10]};// 평조, 계면조
+const KR={
+ explore:[
+  {n:'달빛 아리랑',kr:1,sc:'kpy',bpm:46,jd:'gut',lead:'daegeum',layers:['drone','gayageum','janggu']},
+  {n:'계면 — 넋의 강',kr:1,sc:'kgy',bpm:42,jd:'gut',lead:'haegeum',layers:['drone','ajaeng','gayageum']},
+  {n:'산사의 밤',kr:1,sc:'kpy',bpm:38,jd:'none',lead:'daegeum',layers:['drone','temple','gayageum']},
+  {n:'한(恨)',kr:1,sc:'kgy',bpm:40,jd:'gut',lead:'gayageum',layers:['drone','ajaeng','haegeum']}],
+ inn:[
+  {n:'주막의 노랫가락',kr:1,sc:'kpy',bpm:60,jd:'gut',lead:'gayageum',layers:['drone','janggu','haegeum','fire']},
+  {n:'장터의 저녁',kr:1,sc:'kpy',bpm:66,jd:'jajin',lead:'haegeum',layers:['janggu','gayageum','fire']}],
+ battle:[
+  {n:'자진모리 — 칼춤',kr:1,sc:'kgy',bpm:96,jd:'jajin',lead:'haegeum',layers:['janggu','buk','kkwaeng','gayageum','ajaeng']},
+  {n:'사물놀이 — 귀신 쫓기',kr:1,sc:'kgy',bpm:104,jd:'hwi',lead:'daegeum',layers:['janggu','buk','kkwaeng','jing']},
+  {n:'무당의 칼',kr:1,sc:'kgy',bpm:100,jd:'jajin',lead:'daegeum',layers:['janggu','buk','jing','gayageum']}],
+ boss:[
+  {n:'휘모리 — 저승사자',kr:1,sc:'kgy',bpm:116,jd:'hwi',lead:'haegeum',layers:['janggu','buk','kkwaeng','jing','ajaeng','gayageum']},
+  {n:'굿판의 악귀',kr:1,sc:'kgy',bpm:108,jd:'jajin',lead:'daegeum',layers:['janggu','buk','kkwaeng','jing','ajaeng']}]};
+Object.values(KR).forEach(L=>L.forEach(x=>{x.prog=[0,0,0,0];x.cl=1}));
+const JD={
+ gut:[[0,'D'],[2,'G'],[3,'K'],[6,'R'],[8,'K'],[9,'G'],[11,'K']],
+ jajin:[[0,'D'],[2,'T'],[3,'K'],[5,'T'],[6,'K'],[8,'T'],[9,'K'],[10,'T']],
+ hwi:[[0,'D'],[2,'T'],[4,'K'],[6,'T'],[8,'D'],[10,'T'],[12,'K'],[14,'T'],[15,'T']],
+ none:[]};
+const _list=MU.list,_nt=MU.nt,_pb=MU.playBar;
+Object.assign(MU,{
+ list(){const L=_list.call(this);const m=this.mode==='camp'?'inn':this.mode;const k=KR[m]||[];return L.concat(k,k)},
+ nt(d,o){const s=this.song;if(!s||!s.kr)return _nt.call(this,d,o);const S=KS[s.sc],n=S.length,oc=Math.floor(d/n),dd=((d%n)+n)%n;return this.root*Math.pow(2,(S[dd]+12*(oc+(o||0))+(this.trans||0))/12)},
+ // --- instruments ---
+ kung(t,v){const C=this.ctx;const o=C.createOscillator(),g=this.out(-0.15,1);o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(68,t+0.25);this.env(g,t,0.003,v,0.5,0.45);o.connect(g);o.start(t);o.stop(t+0.55)},
+ deok(t,v){const C=this.ctx;const s=C.createBufferSource(),bp=C.createBiquadFilter(),g=this.out(0.2,1);s.buffer=this.noise;bp.type='bandpass';bp.frequency.value=2800;bp.Q.value=2.2;s.connect(bp);bp.connect(g);this.env(g,t,0.001,v,0.07,0.06);s.start(t,Math.random());s.stop(t+0.09);
+  const o=C.createOscillator(),og=this.out(0.2,0);o.type='triangle';o.frequency.setValueAtTime(620,t);o.frequency.exponentialRampToValueAtTime(380,t+0.05);this.env(og,t,0.001,v*0.35,0.06,0.05);o.connect(og);o.start(t);o.stop(t+0.08)},
+ stroke(k,t,v,st){if(k==='D'){this.kung(t,v);this.deok(t,v*0.8)}else if(k==='K')this.kung(t,v*0.85);else if(k==='T')this.deok(t,v*0.75);
+  else if(k==='G'){this.deok(t-st*0.33,v*0.4);this.deok(t,v*0.75)}else if(k==='R'){for(let j=0;j<4;j++)this.deok(t+j*st*0.25,v*(0.3+j*0.1))}},
+ jing(f,t,v){const C=this.ctx;const g=this.out(0,2);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+0.06);g.gain.exponentialRampToValueAtTime(v*0.5,t+1.2);g.gain.exponentialRampToValueAtTime(0.0001,t+5.5);
+  [[1,1],[1.006,0.8],[2.03,0.35],[2.78,0.22],[3.45,0.12]].forEach(([r,a])=>{const o=C.createOscillator(),og=C.createGain();o.type='sine';o.frequency.setValueAtTime(f*r*1.01,t);o.frequency.exponentialRampToValueAtTime(f*r,t+1.5);og.gain.value=a;o.connect(og);og.connect(g);o.start(t);o.stop(t+5.6)});
+  this.kung(t,v*1.2)},
+ kkwaeng(t,v){const C=this.ctx;const g=this.out(0.35,0);this.env(g,t,0.001,v,0.13,0.12);[1,1.47,2.09,2.73].forEach(r=>{const o=C.createOscillator();o.type='square';o.frequency.value=1650*r;o.connect(g);o.start(t);o.stop(t+0.15)});
+  const s=C.createBufferSource(),hp=C.createBiquadFilter(),ng=this.out(0.35,0);s.buffer=this.noise;hp.type='highpass';hp.frequency.value=5000;s.connect(hp);hp.connect(ng);this.env(ng,t,0.001,v*0.6,0.09,0.08);s.start(t,Math.random());s.stop(t+0.1)},
+ temple(f,t,v){const C=this.ctx;const g=this.out(0,2);this.env(g,t,0.01,v,7,6.9);[[1,1],[2.76,0.4],[5.4,0.15],[0.5,0.6]].forEach(([r,a])=>{const o=C.createOscillator(),og=C.createGain();o.type='sine';o.frequency.value=f*r;og.gain.value=a;o.connect(og);og.connect(g);o.start(t);o.stop(t+7.1)})},
+ gayageum(f,t,v,pan,orn){const C=this.ctx;const g=this.out(pan||0,2),lp=C.createBiquadFilter();lp.type='lowpass';lp.Q.value=3;lp.frequency.setValueAtTime(Math.min(9000,f*7),t);lp.frequency.exponentialRampToValueAtTime(Math.max(200,f*1.6),t+0.6);lp.connect(g);this.env(g,t,0.002,v,1.7,1.65);
+  const o1=C.createOscillator(),o2=C.createOscillator(),g2=C.createGain();o1.type='triangle';o2.type='sawtooth';g2.gain.value=0.35;o2.connect(g2);g2.connect(lp);o1.connect(lp);
+  [o1,o2].forEach(o=>{o.frequency.setValueAtTime(f,t);if(orn==='push'){o.frequency.setValueAtTime(f,t+0.16);o.frequency.linearRampToValueAtTime(f*1.08,t+0.32);o.frequency.linearRampToValueAtTime(f,t+0.6)}
+   else if(orn==='down'){o.frequency.setValueAtTime(f,t+0.25);o.frequency.exponentialRampToValueAtTime(f*0.89,t+0.55)}});
+  if(orn==='shake'){const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=5.5;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(45,t+0.45);vb.connect(vg);vg.connect(o1.detune);vg.connect(o2.detune);vb.start(t);vb.stop(t+1.8)}
+  o1.start(t);o2.start(t);o1.stop(t+1.8);o2.stop(t+1.8)},
+ haegeum(f,t,dur,v,pan,from){const C=this.ctx;const o=C.createOscillator(),bp=C.createBiquadFilter(),lp=C.createBiquadFilter(),g=this.out(pan||0,1);o.type='sawtooth';
+  if(from&&Math.abs(from/f-1)<0.5){o.frequency.setValueAtTime(from,t);o.frequency.exponentialRampToValueAtTime(f,t+0.1)}else o.frequency.setValueAtTime(f,t);
+  bp.type='peaking';bp.frequency.value=1250;bp.Q.value=1.5;bp.gain.value=9;lp.type='lowpass';lp.frequency.value=3600;o.connect(bp);bp.connect(lp);lp.connect(g);
+  const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=6;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(dur>0.5?32:12,t+Math.min(0.5,dur*0.7));vb.connect(vg);vg.connect(o.detune);
+  this.env(g,t,0.05,v,dur,Math.min(0.25,dur*0.4));o.start(t);vb.start(t);o.stop(t+dur+0.1);vb.stop(t+dur+0.1)},
+ daegeum(f,t,dur,v,pan){const C=this.ctx;this.flute(f,t,dur,v,pan);const o=C.createOscillator(),bp=C.createBiquadFilter(),g=this.out(pan||0,1);o.type='sawtooth';o.frequency.value=f;bp.type='bandpass';bp.frequency.value=f*3;bp.Q.value=9;o.connect(bp);bp.connect(g);
+  const vb=C.createOscillator(),vg=C.createGain();vb.frequency.value=4.6;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(dur>0.6?28:8,t+Math.min(0.6,dur*0.7));vb.connect(vg);vg.connect(o.detune);
+  this.env(g,t,0.08,v*0.25,dur,Math.min(0.3,dur*0.5));o.start(t);vb.start(t);o.stop(t+dur+0.1);vb.stop(t+dur+0.1)},
+ // --- composition ---
+ krMot(key,N){const M=this.mots||(this.mots={});const k='kr'+key;if(M[k])return M[k];
+  if(key==='A3'&&M.krA){M[k]=M.krA.map(b=>b.map(e=>({...e,d:e.d+1})));return M[k]}
+  if(key==='B2'&&M.krB){M[k]=M.krB.map(b=>b.map(e=>({...e,d:e.d+(Math.random()<0.5?0:5)})));return M[k]}
+  const R12=[[0,6],[0,3,6,9],[0,4,6,10],[0,6,9],[0,2,3,6,8,9],[0,3,4,6,9],[0,9]],R16=[[0,4,8,12],[0,2,4,8,10,12],[0,8,12],[0,3,6,8,12,14],[0,4,6,8,12]];
+  const ph=[];let cur=R(4,7);for(let b=0;b<8;b++){const end=b%4===3;const p=end?pk2([[0],[0,6]].map(x=>N===16?x.map(y=>y*16/12|0):x)):pk2(N===16?R16:R12);const ev=[];
+   p.forEach((st,j)=>{if(end&&j===p.length-1)cur=pk2([5,5,3,7]);else cur=Math.max(2,Math.min(10,cur+pk2([-1,-1,1,1,0,2,-2])));ev.push({st,d:cur,len:(p[j+1]!=null?p[j+1]:N)-st})});
+   if(!end&&Math.random()<0.1)ev.length=0;ph.push(ev)}M[k]=ph;return ph},
+ orn(d,len){const s=this.song,dd=((d%5)+5)%5;if(s.sc==='kgy'){if(dd===3&&len>=3)return 'shake';if(dd===2&&len>=5)return 'down';if(len>=6)return 'shake'}else{if(len>=6)return 'shake';if(dd===1&&len>=4)return 'push'}return null},
+ playBar(i,t){const s=this.song;if(!s||!s.kr)return _pb.call(this,i,t);
+  const L=s.layers,has=k=>L.includes(k);const fight=this.fight(),boss=this.mode==='boss';const sec=this.secOf(i),blk=Math.floor(i/8);
+  if(blk!==this._blk){this._blk=blk;this.onBlock(sec,blk);if(!fight)this.trans=sec==='B2'?2:0;else this.trans=sec==='C'||sec==='B2'?[2,3,5][Math.floor(blk/6)%3]:[0,1,2][Math.floor(blk/6)%3]}
+  const beat=60/this.curBpm(i),barLen=beat*4,bi=i%8;const N=s.jd==='hwi'?16:12,st=barLen/N;
+  const I=fight?{A:1,A2:2,B:3,brk:1,C:4,B2:3}[sec]:{intro:0,A:1,A2:2,B:3,brk:0,A3:2,B2:3,out:1}[sec];
+  // drone / low strings
+  if(has('drone')&&bi%2===0)this.pad([this.nt(0,0),this.nt(3,0),this.nt(0,1)],t,barLen*2+beat,sec==='brk'?0.026:0.032);
+  if(has('ajaeng')&&bi%2===0&&sec!=='intro')this.cello(this.nt(pk2([0,0,3]),-1),t,barLen*2*0.98,fight?0.08:0.06,-0.15);
+  if(has('fire'))this.fire(t,barLen);
+  // jangdan
+  const pat=JD[s.jd]||[];const drums=(has('janggu')||fight)&&pat.length&&(fight?sec!=='brk':(I>=1&&sec!=='out'||sec==='out'&&bi<4));
+  if(drums){const vol=fight?0.45:0.22+I*0.04;pat.forEach(([p,k])=>{if(!fight&&I<=1&&k==='G')k='T';this.stroke(k,t+p*st,vol,st)});
+   if(fight&&I>=3&&bi%2===1)this.stroke('R',t+(N-2)*st,vol*0.8,st)}
+  if(fight&&sec==='brk'){if(bi%2===0)this.stroke('D',t,0.45,st);if(bi>=6){const n=bi===6?N/2:N;for(let k=0;k<n;k++)this.stroke(k%2?'T':'K',t+k*barLen/n,0.18+0.3*k/n,st)}if(bi===7)this.swell(t,barLen,0.06)}
+  if(has('buk')&&fight&&sec!=='brk'){this.drum(t,0.5,62);if(I>=3)this.drum(t+st*(N/2),0.4,66)}
+  if(has('kkwaeng')&&fight&&sec!=='brk'&&I>=2){for(let k=0;k<N;k++){const acc=pat.some(([p])=>p===k);if(acc||(I>=4&&k%2===0))this.kkwaeng(t+k*st,acc?0.05:0.025)}}
+  if((has('jing')||boss)&&(fight?(bi%4===0&&sec!=='brk'):(bi===0&&I>=2)))this.jing(this.nt(0,0),t,fight?0.12:0.06);
+  if(has('temple')&&bi%4===0)this.temple(this.nt(0,-1)*1.0,t,0.07);
+  // melody
+  const key=sec==='intro'||sec==='out'||sec==='A2'&&fight?'A':sec==='brk'?'B':sec==='C'?'C':sec;const mot=this.krMot(key,N)[bi];
+  const lead=s.lead;const playLead=!(sec==='brk')&&!(fight&&sec==='A'&&bi<4)&&!(sec==='intro'&&bi%2===1);
+  if(playLead){let prev=this._prevF||null;mot.forEach((e,j)=>{const f=this.nt(e.d,1),tt=t+e.st*st+Math.random()*0.015,len=e.len*st;const o=this.orn(e.d,e.len);
+    if(lead==='gayageum'){this.gayageum(f,tt,fight?0.13:0.12,0.1,o);if(e.len>=6&&!fight)this.gayageum(f,tt+len*0.5,0.05,0.1,null)}
+    else if(lead==='haegeum')this.haegeum(f,tt,Math.max(0.2,len*0.96),fight?0.065:0.055,0.1,prev);
+    else this.daegeum(f*2,tt,Math.max(0.25,len*0.95),fight?0.06:0.07,0.1);
+    if((sec==='B2'||sec==='C')&&lead!=='gayageum')this.gayageum(f,tt,0.06,-0.3,null);prev=f});this._prevF=prev}
+  else if(sec==='brk'&&!fight&&bi%2===0)this.gayageum(this.nt(pk2([5,7,8]),1),t+beat,0.06,0.3,'shake');
+  // gayageum sanjo-style accompaniment
+  if(has('gayageum')&&lead!=='gayageum'&&I>=(fight?2:1)&&sec!=='brk'){const P=N===16?[0,4,6,8,12,14]:[0,3,6,8,9];const base=pk2([0,3,5]);
+    P.forEach((p,j)=>{if(!fight&&I<2&&j%2)return;this.gayageum(this.nt(base+[0,1,2,1,3,2][j],0),t+p*st,fight?0.06:0.05,j%2?0.35:-0.35,j===0&&!fight?'shake':null)})}
+  if(sec==='A2'&&bi===7||sec==='A3'&&bi===7)this.swell(t,barLen,0.03);
+  if(!fight)this.ambience(this.mode==='inn'||this.mode==='camp'?'inn':this.place,t,barLen)}
+});
+})();
+
 /* ---------- event queue ---------- */
 function nextQueued(){if(!S.heroes.length&&S.screen!=='start'&&S.screen!=='over'){gameOver();return}
   if(S.evoQ.length){const h=S.heroes.find(x=>x.uid===S.evoQ[0]);if(!h){S.evoQ.shift();return nextQueued()}S.modal={type:'evo',uid:h.uid,opts:evoChoices(h)}}
